@@ -14,6 +14,7 @@ in
         name    = "adw-gtk3-dark";
         package = pkgs.adw-gtk3;
       };
+      gtk4.theme = null;
       # Beide Theming-Backends schreiben nach ~/.cache/matugen/colors-gtk.css
       gtk3.extraCss = ''@import url("file://${config.home.homeDirectory}/.cache/matugen/colors-gtk.css");'';
       gtk4.extraCss = ''@import url("file://${config.home.homeDirectory}/.cache/matugen/colors-gtk.css");'';

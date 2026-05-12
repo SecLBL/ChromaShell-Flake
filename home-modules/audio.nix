@@ -17,14 +17,5 @@ in
       ".lv2/nrepellent.lv2".source      = "${pkgs.noise-repellent}/lib/lv2/nrepellent.lv2";
     };
 
-    # WirePlumber: Default Sink/Source auf ChromaShell-Nodes
-    services.pipewire.wireplumber.extraConfig = {
-      "10-chromashell-defaults" = {
-        "wireplumber.settings" = {
-          "default.configured.audio.sink"   = "MixBus.input";
-          "default.configured.audio.source" = "mic_chain_out";
-        };
-      };
-    };
   };
 }

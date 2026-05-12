@@ -37,6 +37,9 @@ in
       # ── Kitty ──────────────────────────────────────────────────────────
       "kitty".source = "${dots}/kitty";
 
+      # ── Pywal templates ────────────────────────────────────────────────
+      "wal/templates".source = "${dots}/wal/templates";
+
       # ── Fish ───────────────────────────────────────────────────────────
       "fish/conf.d/chromashell.fish".source = "${dots}/fish/conf.d/chromashell.fish";
     };

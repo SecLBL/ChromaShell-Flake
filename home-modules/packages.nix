@@ -4,19 +4,18 @@ inputs:
 
 let
   inherit (lib) mkIf;
-  cfg  = config.programs.chromashell;
-  qsPkg = inputs.quickshell.packages.${pkgs.system}.default;
+  cfg = config.programs.chromashell;
 in
 {
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
       # ── Shell ────────────────────────────────
-      qsPkg
+      quickshell
       matugen
       swww
 
       # ── Hyprland utilities ───────────────────
-      rofi-wayland
+      rofi
       swayosd
       hyprlock
       hypridle
