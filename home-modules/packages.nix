@@ -4,18 +4,18 @@ inputs:
 
 let
   inherit (lib) mkIf;
-  cfg = config.programs.chromashell;
+  cfg  = config.programs.chromashell;
   qsPkg = inputs.quickshell.packages.${pkgs.system}.default;
 in
 {
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
-      # Shell
+      # ── Shell ────────────────────────────────
       qsPkg
       matugen
       swww
 
-      # Hyprland utilities
+      # ── Hyprland utilities ───────────────────
       rofi-wayland
       swayosd
       hyprlock
@@ -27,19 +27,29 @@ in
       satty
       playerctl
 
-      # Audio
+      # ── Audio ────────────────────────────────
+      jalv
+      lsp-plugins
+      rnnoise-plugin
+      noise-repellent
       pamixer
-      pulseaudio
+      pulseaudio      # wpctl / pactl
 
-      # System info
+      # ── Theming ──────────────────────────────
+      pywal           # pywal backend
+      adw-gtk3
+
+      # ── System / scripting ───────────────────
       inotify-tools
       jq
       socat
       bc
-      lm_sensors
+      imagemagick
+      curl
 
-      # Fonts
-      (nerdfonts.override { fonts = [ "JetBrainsMono" "Iosevka" ]; })
+      # ── Fonts ────────────────────────────────
+      nerd-fonts.jetbrains-mono
+      nerd-fonts.iosevka
     ];
   };
 }

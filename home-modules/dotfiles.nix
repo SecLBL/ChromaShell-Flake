@@ -4,14 +4,15 @@ inputs:
 
 let
   inherit (lib) mkIf;
-  cfg = config.programs.chromashell;
-  dotfilesSource = inputs.dotfiles;
-  dots = "${dotfilesSource}/dots/.config";
+  cfg  = config.programs.chromashell;
+  dots = "${inputs.dotfiles}/dots/.config";
 in
 {
   config = mkIf cfg.enable {
+
     xdg.configFile = {
-      # ── Quickshell ─────────────────────────────────────────────────────────
+
+      # ── Quickshell ─────────────────────────────────────────────────────
       "quickshell".source = pkgs.runCommand "chromashell-qs-patched" {
         buildInputs = [ pkgs.bash ];
       } ''
@@ -20,18 +21,23 @@ in
         patchShebangs $out
       '';
 
-      # ── Matugen ────────────────────────────────────────────────────────────
+      # ── Hyprland ───────────────────────────────────────────────────────
+      "hypr/chromashell.conf".source = "${dots}/hypr/hyprland.conf";
+      "hypr/config".source           = "${dots}/hypr/config";
+      "hypr/scripts".source          = "${dots}/hypr/scripts";
+
+      # ── Matugen ────────────────────────────────────────────────────────
       "matugen".source = "${dots}/matugen";
 
-      # ── Hyprland ───────────────────────────────────────────────────────────
-      "hypr/chromashell.conf".source = "${dots}/hypr/hyprland.conf";
-      "hypr/config".source          = "${dots}/hypr/config";
-      "hypr/scripts".source         = "${dots}/hypr/scripts";
+      # ── Pipewire virtual nodes ──────────────────────────────────────────
+      "pipewire/pipewire.conf.d/loopback.conf".source       = "${dots}/pipewire/pipewire.conf.d/loopback.conf";
+      "pipewire/pipewire.conf.d/filter-chain-mic.conf".source  = "${dots}/pipewire/pipewire.conf.d/filter-chain-mic.conf";
+      "pipewire/pipewire.conf.d/filter-chain-chat.conf".source = "${dots}/pipewire/pipewire.conf.d/filter-chain-chat.conf";
 
-      # ── Kitty ──────────────────────────────────────────────────────────────
+      # ── Kitty ──────────────────────────────────────────────────────────
       "kitty".source = "${dots}/kitty";
 
-      # ── Fish ───────────────────────────────────────────────────────────────
+      # ── Fish ───────────────────────────────────────────────────────────
       "fish/conf.d/chromashell.fish".source = "${dots}/fish/conf.d/chromashell.fish";
     };
   };
