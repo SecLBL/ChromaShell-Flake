@@ -14,6 +14,7 @@ in
       matugen
       swww
       kitty
+      fish
       starship
 
       # ── Hyprland utilities ───────────────────
@@ -51,6 +52,7 @@ in
       # ── Fonts ────────────────────────────────
       nerd-fonts.jetbrains-mono
       nerd-fonts.iosevka
+      material-symbols
     ];
   };
 }

@@ -46,5 +46,34 @@ in
       # ── Starship ───────────────────────────────────────────────────────
       "starship.toml".source = "${dots}/starship.toml";
     };
+
+    # Writable per-machine files — created once, never overwritten by home-manager
+    home.activation.chromashellWritableStubs = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      create_stub() {
+        local file="$1"
+        local content="$2"
+        if [ ! -f "$file" ]; then
+          mkdir -p "$(dirname "$file")"
+          printf '%s\n' "$content" > "$file"
+        fi
+      }
+
+      # Per-machine Hyprland config (monitors, workspaces)
+      create_stub "$HOME/.config/hypr/monitors.conf" \
+        "# Monitor layout — edit for your machine
+# monitor = name, resolution@hz, position, scale
+# monitor = DP-1, 2560x1440@144, 0x0, 1
+monitor = , preferred, auto, 1"
+
+      create_stub "$HOME/.config/hypr/workspaces.conf" \
+        "# Workspace rules — edit for your machine
+# workspace = 1, monitor:DP-1, default:true"
+
+      # User custom overrides
+      create_stub "$HOME/.config/hypr/custom/env.conf"        "# Custom env vars"
+      create_stub "$HOME/.config/hypr/custom/rules.conf"      "# Custom window rules"
+      create_stub "$HOME/.config/hypr/custom/keybindings.conf" "# Custom keybindings"
+      create_stub "$HOME/.config/hypr/custom/autostart.conf"  "# Custom autostart"
+    '';
   };
 }
