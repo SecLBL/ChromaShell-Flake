@@ -42,6 +42,9 @@ in
 
       # ── Fish ───────────────────────────────────────────────────────────
       "fish/conf.d/chromashell.fish".source = "${dots}/fish/conf.d/chromashell.fish";
+
+      # ── Starship ───────────────────────────────────────────────────────
+      "starship.toml".source = "${dots}/starship.toml";
     };
   };
 }

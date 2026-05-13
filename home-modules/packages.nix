@@ -13,6 +13,8 @@ in
       quickshell
       matugen
       swww
+      kitty
+      starship
 
       # ── Hyprland utilities ───────────────────
       rofi
