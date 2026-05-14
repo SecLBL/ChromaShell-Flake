@@ -24,7 +24,7 @@ in
       $DRY_RUN_CMD mkdir -p "$custom"
       for f in env.conf rules.conf keybindings.conf autostart.conf; do
         if [[ ! -f "$custom/$f" ]]; then
-          $DRY_RUN_CMD cp "${inputs.dotfiles}/dots/.config/hypr/custom/$f" "$custom/$f"
+          $DRY_RUN_CMD install -m 644 "${inputs.dotfiles}/dots/.config/hypr/custom/$f" "$custom/$f"
         fi
       done
     '';
