@@ -15,7 +15,7 @@ in
       # ── Shell ────────────────────────────────
       quickshell
       matugen
-      swww
+      awww
       kitty
       fish
       starship
