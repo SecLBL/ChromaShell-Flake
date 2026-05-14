@@ -5,6 +5,9 @@ inputs:
 let
   inherit (lib) mkIf;
   cfg = config.programs.chromashell;
+  quickshell = pkgs.quickshell.overrideAttrs (old: {
+    buildInputs = old.buildInputs ++ [ pkgs.qt6.qtmultimedia ];
+  });
 in
 {
   config = mkIf cfg.enable {
