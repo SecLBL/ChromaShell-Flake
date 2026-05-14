@@ -24,7 +24,10 @@ in
       # ── Hyprland ───────────────────────────────────────────────────────
       "hypr/chromashell.conf".source = "${dots}/hypr/hyprland.conf";
       "hypr/config".source           = "${dots}/hypr/config";
-      "hypr/scripts".source          = "${dots}/hypr/scripts";
+      "hypr/scripts".source = pkgs.runCommand "chromashell-hypr-scripts" {} ''
+        cp -r ${dots}/hypr/scripts $out
+        chmod -R +x $out
+      '';
 
       # ── Matugen ────────────────────────────────────────────────────────
       "matugen".source = "${dots}/matugen";
