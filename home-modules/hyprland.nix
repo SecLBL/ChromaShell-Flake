@@ -12,9 +12,7 @@ in
       enable          = true;
       systemd.enable  = true;
       xwayland.enable = true;
-      extraConfig = ''
-        source = ${config.xdg.configHome}/hypr/chromashell.conf
-      '';
+      extraConfig = "";
     };
 
     # Erstellt ~/.config/hypr/custom/ mit leeren Dateien falls noch nicht vorhanden.
@@ -22,7 +20,7 @@ in
     home.activation.chromashell-custom-init = lib.hm.dag.entryAfter ["writeBoundary"] ''
       custom="${config.xdg.configHome}/hypr/custom"
       $DRY_RUN_CMD mkdir -p "$custom"
-      for f in env.conf rules.conf keybindings.conf autostart.conf; do
+      for f in env.lua rules.lua keybindings.lua autostart.lua; do
         if [[ ! -f "$custom/$f" ]]; then
           $DRY_RUN_CMD install -m 644 "${inputs.dotfiles}/dots/.config/hypr/custom/$f" "$custom/$f"
         fi

@@ -22,7 +22,7 @@ in
       '';
 
       # ── Hyprland ───────────────────────────────────────────────────────
-      "hypr/chromashell.conf".source = "${dots}/hypr/hyprland.conf";
+      "hypr/hyprland.lua".source = "${dots}/hypr/hyprland.lua";
       "hypr/config".source           = "${dots}/hypr/config";
       "hypr/scripts".source = pkgs.runCommand "chromashell-hypr-scripts" {} ''
         cp -r ${dots}/hypr/scripts $out
@@ -62,21 +62,20 @@ in
       }
 
       # Per-machine Hyprland config (monitors, workspaces)
-      create_stub "$HOME/.config/hypr/monitors.conf" \
-        "# Monitor layout — edit for your machine
-# monitor = name, resolution@hz, position, scale
-# monitor = DP-1, 2560x1440@144, 0x0, 1
-monitor = , preferred, auto, 1"
+      create_stub "$HOME/.config/hypr/monitors.lua" \
+        "-- Monitor layout — edit for your machine
+-- hl.monitor({ output=\"DP-1\", mode=\"2560x1440@144\", position=\"0x0\", scale=1 })
+hl.monitor({ output=\"\", mode=\"preferred\", position=\"auto\", scale=1 })"
 
-      create_stub "$HOME/.config/hypr/workspaces.conf" \
-        "# Workspace rules — edit for your machine
-# workspace = 1, monitor:DP-1, default:true"
+      create_stub "$HOME/.config/hypr/workspaces.lua" \
+        "-- Workspace rules — edit for your machine
+-- hl.workspace_rule({ workspace=\"1\", monitor=\"DP-1\", default=true })"
 
       # User custom overrides
-      create_stub "$HOME/.config/hypr/custom/env.conf"        "# Custom env vars"
-      create_stub "$HOME/.config/hypr/custom/rules.conf"      "# Custom window rules"
-      create_stub "$HOME/.config/hypr/custom/keybindings.conf" "# Custom keybindings"
-      create_stub "$HOME/.config/hypr/custom/autostart.conf"  "# Custom autostart"
+      create_stub "$HOME/.config/hypr/custom/env.lua"         "-- Custom env vars"
+      create_stub "$HOME/.config/hypr/custom/rules.lua"       "-- Custom window rules"
+      create_stub "$HOME/.config/hypr/custom/keybindings.lua" "-- Custom keybindings"
+      create_stub "$HOME/.config/hypr/custom/autostart.lua"   "-- Custom autostart"
     '';
   };
 }
