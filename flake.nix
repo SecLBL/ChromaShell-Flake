@@ -1,5 +1,5 @@
 {
-  description = "ChromaShell — Hyprland/Quickshell/Matugen desktop environment";
+  description = "ChromaShell — Hyprland/Caelestia desktop environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -11,12 +11,17 @@
     };
 
     caelestia-shell = {
-      url = "github:caelestia-dots/shell";
+      url = "git+file:///home/lbl/System_Maintenance/caelestia/shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    caelestia-cli = {
+      url = "git+file:///home/lbl/System_Maintenance/caelestia/cli";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, dotfiles, caelestia-shell, ... }@inputs: {
+  outputs = { self, nixpkgs, dotfiles, caelestia-shell, caelestia-cli, ... }@inputs: {
     homeManagerModules.default = import ./home-module.nix inputs;
     nixosModules.default       = import ./nixos-module.nix;
   };

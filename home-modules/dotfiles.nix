@@ -12,15 +12,6 @@ in
 
     xdg.configFile = {
 
-      # ── Quickshell ─────────────────────────────────────────────────────
-      "quickshell".source = pkgs.runCommand "chromashell-qs-patched" {
-        buildInputs = [ pkgs.bash ];
-      } ''
-        cp -r ${dots}/quickshell $out
-        chmod -R +w $out
-        patchShebangs $out
-      '';
-
       # ── Hyprland ───────────────────────────────────────────────────────
       "hypr/hyprland.lua".source = "${dots}/hypr/hyprland.lua";
       "hypr/config".source           = "${dots}/hypr/config";
@@ -29,9 +20,6 @@ in
         chmod -R +x $out
       '';
 
-      # ── Matugen ────────────────────────────────────────────────────────
-      "matugen".source = "${dots}/matugen";
-
       # ── Pipewire virtual nodes ──────────────────────────────────────────
       "pipewire/pipewire.conf.d/loopback.conf".source       = "${dots}/pipewire/pipewire.conf.d/loopback.conf";
       "pipewire/pipewire.conf.d/filter-chain-mic.conf".source  = "${dots}/pipewire/pipewire.conf.d/filter-chain-mic.conf";
@@ -39,9 +27,6 @@ in
 
       # ── Kitty ──────────────────────────────────────────────────────────
       "kitty".source = "${dots}/kitty";
-
-      # ── Pywal templates ────────────────────────────────────────────────
-      "wal/templates".source = "${dots}/wal/templates";
 
       # ── Fish ───────────────────────────────────────────────────────────
       "fish/conf.d/chromashell.fish".source = "${dots}/fish/conf.d/chromashell.fish";

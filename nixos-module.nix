@@ -8,6 +8,11 @@ in
   options.programs.chromashell-system.enable = mkEnableOption "ChromaShell system-level configuration";
 
   config = mkIf cfg.enable {
+    programs.hyprland = {
+      enable   = true;
+      withUWSM = true;
+    };
+
     services.pipewire.wireplumber.extraConfig."10-chromashell-defaults" = {
       "wireplumber.settings" = {
         "default.configured.audio.sink"   = "MixBus.input";
