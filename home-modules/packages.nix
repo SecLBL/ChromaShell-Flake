@@ -10,22 +10,22 @@ in
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
       # ── Shell runtime ────────────────────────
-      awww            # wallpaper daemon (used by caelestia-cli)
       kitty
       fish
       starship
 
       # ── Hyprland utilities ───────────────────
-      rofi
-      swayosd
       hyprlock
       hypridle
+      hyprpicker
       wl-clipboard
       cliphist
+      ydotool
       grim
-      slurp
-      satty
-      playerctl
+      swappy
+
+      # ── Screen recording ─────────────────────
+      gpu-screen-recorder
 
       # ── Audio ────────────────────────────────
       jalv

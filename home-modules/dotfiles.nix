@@ -53,8 +53,20 @@ in
 hl.monitor({ output=\"\", mode=\"preferred\", position=\"auto\", scale=1 })"
 
       create_stub "$HOME/.config/hypr/workspaces.lua" \
-        "-- Workspace rules — edit for your machine
--- hl.workspace_rule({ workspace=\"1\", monitor=\"DP-1\", default=true })"
+        "-- Workspace rules — edit for your machine.
+-- Each monitor must own exactly 10 contiguous workspaces starting at a multiple of 10 + 1.
+-- This is required for wsaction.fish: floor((active_ws - 1) / 10) * 10 + slot
+--
+-- 2-monitor example:
+--   hl.workspace_rule({ workspace=\"1\",  monitor=\"DP-1\", default=true })
+--   ...
+--   hl.workspace_rule({ workspace=\"10\", monitor=\"DP-1\" })
+--   hl.workspace_rule({ workspace=\"11\", monitor=\"DP-2\", default=true })
+--   ...
+--   hl.workspace_rule({ workspace=\"20\", monitor=\"DP-2\" })
+--
+-- 3-monitor example: add workspaces 21-30 for the third monitor.
+-- Run: hyprctl monitors | grep Monitor   to find output names."
 
       # User custom overrides
       create_stub "$HOME/.config/hypr/custom/env.lua"         "-- Custom env vars"
