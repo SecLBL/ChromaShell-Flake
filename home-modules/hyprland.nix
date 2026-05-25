@@ -20,7 +20,7 @@ in
     home.activation.chromashell-custom-init = lib.hm.dag.entryAfter ["writeBoundary"] ''
       custom="${config.xdg.configHome}/hypr/custom"
       $DRY_RUN_CMD mkdir -p "$custom"
-      for f in env.lua rules.lua keybindings.lua autostart.lua; do
+      for f in env.lua rules.lua keybindings.lua autostart.lua variables.lua settings.lua; do
         if [[ ! -f "$custom/$f" ]]; then
           $DRY_RUN_CMD install -m 644 "${inputs.dotfiles}/dots/.config/hypr/custom/$f" "$custom/$f"
         fi

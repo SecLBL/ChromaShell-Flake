@@ -73,6 +73,8 @@ hl.monitor({ output=\"\", mode=\"preferred\", position=\"auto\", scale=1 })"
       create_stub "$HOME/.config/hypr/custom/rules.lua"       "-- Custom window rules"
       create_stub "$HOME/.config/hypr/custom/keybindings.lua" "-- Custom keybindings"
       create_stub "$HOME/.config/hypr/custom/autostart.lua"   "-- Custom autostart"
+      create_stub "$HOME/.config/hypr/custom/variables.lua"   "-- Custom variable overrides (loaded before keybindings)\n-- local v = require(\"config.variables\"); v.terminal = \"wezterm\""
+      create_stub "$HOME/.config/hypr/custom/settings.lua"    "-- Custom settings (hl.config calls merge with existing values)\n-- hl.config({ decoration = { rounding = 10 } })"
     '';
   };
 }
