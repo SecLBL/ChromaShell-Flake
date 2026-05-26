@@ -20,6 +20,18 @@ let
     };
   };
 
+  # Same pattern for communication apps — disables the built-in discord/whatsapp entries.
+  mkCommsEntry = name: cmd: classes: {
+    discord.enable  = false;
+    whatsapp.enable = false;
+    ${name} = {
+      enable  = true;
+      match   = map (c: { class = c; }) classes;
+      command = cmd;
+      move    = true;
+    };
+  };
+
   # Browser definitions.
   # type "gecko"    → our SSE extension + userChrome deployed
   # type "chromium" → package only; caelestia-cli applies surface color via policy
@@ -119,6 +131,72 @@ let
       caeConfig = mkEntry "amberol" [ "amberol" ] [ "io.bassi.Amberol" "amberol" ];
     };
   };
+
+  # Per-app definitions for the communication workspace toggle.
+  # Discord-based clients all reuse the "discord" toggle key with their specific class/command.
+  # caeConfig for non-default apps uses mkCommsEntry to disable the discord/whatsapp defaults.
+  commsDefs = {
+    # ── Discord clients ────────────────────────────────────────────────────
+    discord = {
+      package   = pkgs.discord;
+      caeConfig = {
+        discord  = { enable = true; match = [{ class = "discord"; }];  command = [ "discord" ];  move = true; };
+        whatsapp.enable = false;
+      };
+    };
+    vencord = {
+      # manage=true installs vesktop, the official standalone Vencord desktop app
+      package   = pkgs.vesktop;
+      caeConfig = {
+        discord  = { enable = true; match = [{ class = "vesktop"; }];  command = [ "vesktop" ];  move = true; };
+        whatsapp.enable = false;
+      };
+    };
+    betterdiscord = {
+      # BetterDiscord is a mod; manage=true only installs discord — BD setup is user-managed
+      package   = pkgs.discord;
+      caeConfig = {
+        discord  = { enable = true; match = [{ class = "discord"; }];  command = [ "discord" ];  move = true; };
+        whatsapp.enable = false;
+      };
+    };
+    equicord = {
+      # manage=true installs equibop, the official standalone Equicord desktop app
+      package   = pkgs.equibop;
+      caeConfig = {
+        discord  = { enable = true; match = [{ class = "equibop"; }]; command = [ "equibop" ]; move = true; };
+        whatsapp.enable = false;
+      };
+    };
+    legcord = {
+      package   = pkgs.legcord;
+      caeConfig = {
+        discord  = { enable = true; match = [{ class = "legcord"; }]; command = [ "legcord" ]; move = true; };
+        whatsapp.enable = false;
+      };
+    };
+
+    # ── Other messaging ────────────────────────────────────────────────────
+    element = {
+      package   = pkgs.element-desktop;
+      caeConfig = mkCommsEntry "element"  [ "element-desktop" ]  [ "Element" "element-desktop" ];
+    };
+    telegram = {
+      package   = pkgs.telegram-desktop;
+      caeConfig = mkCommsEntry "telegram" [ "telegram-desktop" ] [ "TelegramDesktop" "telegram-desktop" ];
+    };
+    slack = {
+      package   = pkgs.slack;
+      caeConfig = mkCommsEntry "slack"    [ "slack" ]            [ "Slack" "slack" ];
+    };
+    whatsapp = {
+      package   = pkgs.whatsapp-for-linux;
+      caeConfig = {
+        discord.enable  = false;
+        whatsapp        = { enable = true; match = [{ class = "whatsapp"; }]; move = true; };
+      };
+    };
+  };
 in
 {
   imports = [
@@ -213,6 +291,32 @@ in
         '';
       };
     };
+
+    comms = {
+      manage = mkOption {
+        type        = types.bool;
+        default     = false;
+        description = "Install the communication app via the flake. false = user manages installation themselves";
+      };
+      app = mkOption {
+        type = types.nullOr (types.enum [
+          "discord" "vencord" "betterdiscord" "equicord" "legcord"   # Discord clients
+          "element"                                                     # Matrix
+          "telegram" "slack" "whatsapp"                                # Other
+        ]);
+        default     = null;
+        description = ''
+          Communication app for the Super+Shift+C toggle workspace.
+            null              — flake does nothing (no install, no caelestia config)
+            app + manage=false — caelestia configured for the app, user installs it
+            app + manage=true  — flake installs the app and configures caelestia
+          Note: vencord installs vesktop (standalone Vencord app) when manage=true.
+          Note: equicord installs equibop (standalone Equicord app) when manage=true.
+          Note: betterdiscord installs plain discord; BD itself must be set up by the user.
+          Note: slack requires nixpkgs.config.allowUnfree = true.
+        '';
+      };
+    };
   };
 
   config = mkIf cfg.enable {
@@ -252,7 +356,11 @@ in
         (cfg.browser.manage && cfg.browser.app != null
          && browserDefs.${cfg.browser.app} ? package
          && (browserDefs.${cfg.browser.app}.type == "chromium" || cfg.browser.app == "zen"))
-        [ browserDefs.${cfg.browser.app}.package ];
+        [ browserDefs.${cfg.browser.app}.package ]
+      ++
+      lib.optionals
+        (cfg.comms.manage && cfg.comms.app != null && commsDefs.${cfg.comms.app} ? package)
+        [ commsDefs.${cfg.comms.app}.package ];
 
     # ── ChromaShell SSE server ────────────────────────────────────────────────────
     # Serves scheme.json (GET /) and pushes live color updates (GET /events) via SSE.
@@ -391,6 +499,8 @@ in
           };
         } // lib.optionalAttrs (cfg.music.app != null) {
           toggles.music = musicDefs.${cfg.music.app}.caeConfig;
+        } // lib.optionalAttrs (cfg.comms.app != null) {
+          toggles.communication = commsDefs.${cfg.comms.app}.caeConfig;
         };
       };
     };
