@@ -20,6 +20,27 @@ let
     };
   };
 
+  # Browser definitions.
+  # type "gecko"    → our SSE extension + userChrome deployed
+  # type "chromium" → package only; caelestia-cli applies surface color via policy
+  # package omitted for Zen (not in nixpkgs; user installs via community flake)
+  browserDefs = {
+    firefox   = { package = pkgs.firefox;   type = "gecko"; };
+    librewolf = { package = pkgs.librewolf; type = "gecko"; };
+    zen       = {                            type = "gecko"; };
+    brave     = { package = pkgs.brave;     type = "chromium"; };
+    chromium  = { package = pkgs.chromium;  type = "chromium"; };
+  };
+
+  # Builds the ChromaShell browser extension as an XPI consumable by HM Firefox modules.
+  chromashellBrowserExt = pkgs.runCommand "chromashell-browser-extension" {
+    nativeBuildInputs = [ pkgs.zip ];
+  } ''
+    mkdir -p $out
+    cd ${inputs.dotfiles}/dots/.config/chromashell-browser-extension
+    zip -r $out/chromashell@chromashell.xpi manifest.json background.js
+  '';
+
   # Editor command used in the Hyprland keybind (Super+C).
   # Terminal editors are wrapped in kitty so they open a window.
   editorDefs = {
@@ -168,6 +189,30 @@ in
         '';
       };
     };
+
+    browser = {
+      manage = mkOption {
+        type        = types.bool;
+        default     = false;
+        description = "Install the browser via the flake. false = user manages installation themselves";
+      };
+      app = mkOption {
+        type = types.nullOr (types.enum [
+          "firefox" "librewolf" "zen"   # gecko — ChromaShell extension + userChrome deployed
+          "brave" "chromium"            # chromium — caelestia-cli apply_chromium
+        ]);
+        default     = null;
+        description = ''
+          Browser for daily use.
+            null              — flake does nothing (no install, no config deployment)
+            app + manage=false — ChromaShell extension and userChrome deployed, user installs browser
+            app + manage=true  — flake installs the browser and deploys configs
+          Note: zen is not in nixpkgs; manage=true has no effect for zen.
+          Note: Firefox release requires signed extensions; the XPI is placed in the profile but
+                may not auto-load. Use librewolf for reliable unsigned extension support.
+        '';
+      };
+    };
   };
 
   config = mkIf cfg.enable {
@@ -200,7 +245,13 @@ in
       ++
       lib.optionals
         (cfg.music.manage && cfg.music.app != null && musicDefs.${cfg.music.app} ? package)
-        [ musicDefs.${cfg.music.app}.package ];
+        [ musicDefs.${cfg.music.app}.package ]
+      ++
+      # Gecko browsers are installed via their HM modules; only chromium-based go here
+      lib.optionals
+        (cfg.browser.manage && cfg.browser.app != null
+         && browserDefs.${cfg.browser.app}.type == "chromium")
+        [ browserDefs.${cfg.browser.app}.package ];
 
     # ── ChromaShell SSE server ────────────────────────────────────────────────────
     # Serves scheme.json (GET /) and pushes live color updates (GET /events) via SSE.
@@ -218,6 +269,63 @@ in
       };
       Install.WantedBy = [ "default.target" ];
     };
+
+    # ── Browser: Firefox ────────────────────────────────────────────────────
+    programs.firefox = mkIf (cfg.browser.app == "firefox") {
+      enable  = true;
+      package = if cfg.browser.manage then pkgs.firefox else null;
+      profiles.default = {
+        userChrome = builtins.readFile "${inputs.dotfiles}/dots/.config/firefox/userChrome.css";
+        settings."toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+      };
+    };
+
+    # ── Browser: LibreWolf ───────────────────────────────────────────────────
+    programs.librewolf = mkIf (cfg.browser.app == "librewolf") {
+      enable  = true;
+      package = if cfg.browser.manage then pkgs.librewolf else null;
+      profiles.default = {
+        userChrome = builtins.readFile "${inputs.dotfiles}/dots/.config/firefox/userChrome.css";
+        settings = {
+          "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+          "xpinstall.signatures.required" = false;
+        };
+      };
+    };
+
+    # ── Browser extension (gecko) — XPI placed in profile's extensions dir ───
+    home.file = lib.optionalAttrs (cfg.browser.app == "firefox") {
+      ".mozilla/firefox/default/extensions/chromashell@chromashell.xpi".source =
+        "${chromashellBrowserExt}/chromashell@chromashell.xpi";
+    } // lib.optionalAttrs (cfg.browser.app == "librewolf") {
+      ".librewolf/default/extensions/chromashell@chromashell.xpi".source =
+        "${chromashellBrowserExt}/chromashell@chromashell.xpi";
+    };
+
+    # ── Browser: Zen (not in nixpkgs — extension + userChrome via activation) ─
+    home.activation.chromashellZenSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      lib.optionalString (cfg.browser.app == "zen") ''
+        zen_base="$HOME/.zen"
+        if [ -d "$zen_base" ]; then
+          profile_path=$(awk -F= '/^Path=/{print $2; exit}' "$zen_base/profiles.ini" 2>/dev/null)
+          if [ -n "$profile_path" ]; then
+            profile_dir="$zen_base/$profile_path"
+            mkdir -p "$profile_dir/chrome"
+            mkdir -p "$profile_dir/extensions"
+            ln -sf "${inputs.dotfiles}/dots/.config/zen/userChrome.css" \
+              "$profile_dir/chrome/userChrome.css"
+            cp -f "${chromashellBrowserExt}/chromashell@chromashell.xpi" \
+              "$profile_dir/extensions/chromashell@chromashell.xpi"
+            grep -q "legacyUserProfileCustomizations" "$profile_dir/user.js" 2>/dev/null || \
+              printf '%s\n' 'user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);' \
+                >> "$profile_dir/user.js"
+            grep -q "xpinstall.signatures.required" "$profile_dir/user.js" 2>/dev/null || \
+              printf '%s\n' 'user_pref("xpinstall.signatures.required", false);' \
+                >> "$profile_dir/user.js"
+          fi
+        fi
+      ''
+    );
 
     # ── Caelestia shell + CLI ─────────────────────────────────────────────────
     programs.caelestia = {
