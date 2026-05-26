@@ -146,6 +146,7 @@ in
         injectCss     = true;
         replaceColors = true;
         homeConfig    = true;
+        colorScheme   = "caelestia";
       };
     };
 

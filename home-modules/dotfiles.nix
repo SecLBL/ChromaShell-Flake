@@ -28,6 +28,9 @@ in
       # ── Kitty ──────────────────────────────────────────────────────────
       "kitty".source = "${dots}/kitty";
 
+      # ── Spicetify (user.css only — color.ini written at runtime by caelestia-cli) ──
+      "spicetify/Themes/caelestia/user.css".source = "${dots}/spicetify/Themes/caelestia/user.css";
+
       # ── Btop (conf only — themes/ stays writable for caelestia-cli) ────
       "btop/btop.conf".source = "${dots}/btop/btop.conf";
 
