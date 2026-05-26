@@ -148,6 +148,12 @@ in
         homeConfig    = true;
         colorScheme   = "caelestia";
       };
+      enabledExtensions = [
+        {
+          src  = "${inputs.dotfiles}/dots/.config/spicetify/Extensions";
+          name = "caelestia-colors.js";
+        }
+      ];
     };
 
     # ── Music app package (manage = true, non-spicetify) ─────────────────────
