@@ -182,6 +182,10 @@ let
       package   = pkgs.slack;
       caeConfig = mkCommsEntry "slack"    [ "slack" ]            [ "Slack" "slack" ];
     };
+    signal = {
+      package   = pkgs.signal-desktop;
+      caeConfig = mkCommsEntry "signal"   [ "signal-desktop" ]   [ "Signal" "signal-desktop" ];
+    };
   };
 in
 {
@@ -288,7 +292,7 @@ in
         type = types.nullOr (types.enum [
           "discord" "vencord" "equicord" "legcord"   # Discord clients
           "element"                                                     # Matrix
-          "telegram" "slack"                                            # Other
+          "telegram" "slack" "signal"                                     # Other
         ]);
         default     = null;
         description = ''
