@@ -40,6 +40,7 @@ in
 
       # ── Theming ──────────────────────────────
       adw-gtk3
+      papirus-icon-theme
 
       # ── Caelestia spawn support ──────────────
       app2unit
