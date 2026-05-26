@@ -152,14 +152,7 @@ let
         whatsapp.enable = false;
       };
     };
-    betterdiscord = {
-      # BetterDiscord is a mod; manage=true only installs discord — BD setup is user-managed
-      package   = pkgs.discord;
-      caeConfig = {
-        discord  = { enable = true; match = [{ class = "discord"; }];  command = [ "discord" ];  move = true; };
-        whatsapp.enable = false;
-      };
-    };
+
     equicord = {
       # manage=true installs equibop, the official standalone Equicord desktop app
       package   = pkgs.equibop;
@@ -300,7 +293,7 @@ in
       };
       app = mkOption {
         type = types.nullOr (types.enum [
-          "discord" "vencord" "betterdiscord" "equicord" "legcord"   # Discord clients
+          "discord" "vencord" "equicord" "legcord"   # Discord clients
           "element"                                                     # Matrix
           "telegram" "slack" "whatsapp"                                # Other
         ]);
@@ -312,7 +305,7 @@ in
             app + manage=true  — flake installs the app and configures caelestia
           Note: vencord installs vesktop (standalone Vencord app) when manage=true.
           Note: equicord installs equibop (standalone Equicord app) when manage=true.
-          Note: betterdiscord installs plain discord; BD itself must be set up by the user.
+
           Note: slack requires nixpkgs.config.allowUnfree = true.
         '';
       };
