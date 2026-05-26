@@ -46,6 +46,10 @@ in
 
       # ── Thunar ─────────────────────────────────────────────────────────
       "Thunar".source = "${dots}/Thunar";
+
+      # ── uwsm session environment ────────────────────────────────────────
+      "uwsm/env".source          = "${dots}/uwsm/env";
+      "uwsm/env-hyprland".source = "${dots}/uwsm/env-hyprland";
     };
 
     # Writable per-machine files — created once, never overwritten by home-manager
