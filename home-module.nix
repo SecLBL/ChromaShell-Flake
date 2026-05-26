@@ -315,11 +315,11 @@ in
         ''
           deploy_chromafox() {
             local profiles_ini="$1" userchrome_src="$2" allow_unsigned="$3"
-            [ -f "$profiles_ini" ] || return
+            [ -f "$profiles_ini" ] || return 0
             local base rel dir
             base=$(${pkgs.coreutils}/bin/dirname "$profiles_ini")
             rel=$(${pkgs.gawk}/bin/awk -F= '/^Path=/{print $2; exit}' "$profiles_ini" 2>/dev/null)
-            [ -n "$rel" ] || return
+            [ -n "$rel" ] || return 0
             dir="$base/$rel"
             ${pkgs.coreutils}/bin/mkdir -p "$dir/chrome" "$dir/extensions"
             ${pkgs.coreutils}/bin/ln -sf "$userchrome_src" "$dir/chrome/userChrome.css"
