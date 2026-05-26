@@ -68,10 +68,10 @@ in
       "micro/settings.json"            = mkIf (cfg.editor.app == "micro")    { source = "${dots}/micro/settings.json"; };
 
       # ── Hyprland editor keybind override (flake-managed, not user-editable) ──
+      # force=true is safe here: only overwrites the empty stub from the activation script
       "hypr/custom/editor.lua"         = mkIf (cfg.editor.app != null) {
-        text = if cfg.editor.app != null
-          then "require(\"config.variables\").editor = \"${editorCmds.${cfg.editor.app}}\""
-          else "";
+        text  = "require(\"config.variables\").editor = \"${editorCmds.${cfg.editor.app}}\"";
+        force = true;
       };
 
       # ── uwsm session environment ────────────────────────────────────────
@@ -119,6 +119,9 @@ hl.monitor({ output=\"\", mode=\"preferred\", position=\"auto\", scale=1 })"
       create_stub "$HOME/.config/hypr/custom/autostart.lua"   "-- Custom autostart"
       create_stub "$HOME/.config/hypr/custom/variables.lua"   "-- Custom variable overrides (loaded before keybindings)\n-- local v = require(\"config.variables\"); v.terminal = \"wezterm\""
       create_stub "$HOME/.config/hypr/custom/settings.lua"    "-- Custom settings (hl.config calls merge with existing values)\n-- hl.config({ decoration = { rounding = 10 } })"
+      # editor.lua: stub so pcall(require,"custom.editor") never errors when editor.app = null
+      # when editor.app is set, the flake overwrites this with force=true
+      create_stub "$HOME/.config/hypr/custom/editor.lua"     "-- editor command set by flake when editor.app is configured"
     '';
   };
 }
