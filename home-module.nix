@@ -162,6 +162,17 @@ in
       (cfg.music.manage && cfg.music.app != null && musicDefs.${cfg.music.app} ? package)
       [ musicDefs.${cfg.music.app}.package ];
 
+    # ── Spicetify colors server (serves color.ini over localhost for the JS extension) ──
+    systemd.user.services.caelestia-colors-server = mkIf (cfg.music.app == "spicetify") {
+      Unit.Description = "Caelestia spicetify colors HTTP server";
+      Unit.After        = [ "default.target" ];
+      Service = {
+        ExecStart = "${pkgs.python3}/bin/python3 ${./caelestia-colors-server.py}";
+        Restart   = "on-failure";
+      };
+      Install.WantedBy = [ "default.target" ];
+    };
+
     # ── Caelestia shell + CLI ─────────────────────────────────────────────────
     programs.caelestia = {
       enable  = true;
