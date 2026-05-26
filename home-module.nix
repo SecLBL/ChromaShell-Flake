@@ -162,11 +162,11 @@ in
       (cfg.music.manage && cfg.music.app != null && musicDefs.${cfg.music.app} ? package)
       [ musicDefs.${cfg.music.app}.package ];
 
-    # ── Spicetify colors socket (socket-activated: zero processes at idle) ─────
-    # systemd holds only the TCP socket. A bash handler spawns per connection,
-    # reads color.ini, writes the HTTP response, and exits immediately.
+    # ── Caelestia colors socket (socket-activated: zero processes at idle) ──────
+    # Serves ~/.local/state/caelestia/scheme.json — the single source of truth
+    # for all Material You color roles. Any tool can query http://127.0.0.1:29847/.
     systemd.user.sockets.caelestia-colors = mkIf (cfg.music.app == "spicetify") {
-      Unit.Description = "Caelestia spicetify colors socket";
+      Unit.Description = "Caelestia colors socket";
       Socket = {
         ListenStream = "127.0.0.1:29847";
         Accept       = true;
@@ -175,7 +175,7 @@ in
     };
 
     systemd.user.services."caelestia-colors@" = mkIf (cfg.music.app == "spicetify") {
-      Unit.Description = "Caelestia spicetify colors handler";
+      Unit.Description = "Caelestia colors handler";
       Service = {
         StandardInput  = "socket";
         StandardOutput = "socket";
@@ -186,10 +186,10 @@ in
               line="''${line%$'\r'}"
               [[ -z "$line" ]] && break
             done
-            ini="''${XDG_CONFIG_HOME:-$HOME/.config}/spicetify/Themes/caelestia/color.ini"
-            if [[ -f "$ini" ]]; then
-              printf 'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n'
-              cat "$ini"
+            scheme="''${XDG_STATE_HOME:-$HOME/.local/state}/caelestia/scheme.json"
+            if [[ -f "$scheme" ]]; then
+              printf 'HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n'
+              cat "$scheme"
             else
               printf 'HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n'
             fi
