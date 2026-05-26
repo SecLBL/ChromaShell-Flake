@@ -192,15 +192,15 @@ in
       ];
     };
 
-    # ── Editor package (manage = true) ───────────────────────────────────────
-    home.packages = lib.optionals
-      (cfg.editor.manage && cfg.editor.app != null)
-      [ editorDefs.${cfg.editor.app}.package ];
-
-    # ── Music app package (manage = true, non-spicetify) ─────────────────────
-    home.packages = lib.optionals
-      (cfg.music.manage && cfg.music.app != null && musicDefs.${cfg.music.app} ? package)
-      [ musicDefs.${cfg.music.app}.package ];
+    # ── Optional app packages (manage = true) ────────────────────────────────
+    home.packages =
+      lib.optionals
+        (cfg.editor.manage && cfg.editor.app != null)
+        [ editorDefs.${cfg.editor.app}.package ]
+      ++
+      lib.optionals
+        (cfg.music.manage && cfg.music.app != null && musicDefs.${cfg.music.app} ? package)
+        [ musicDefs.${cfg.music.app}.package ];
 
     # ── ChromaShell SSE server ────────────────────────────────────────────────────
     # Serves scheme.json (GET /) and pushes live color updates (GET /events) via SSE.
