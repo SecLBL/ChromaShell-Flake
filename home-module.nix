@@ -315,7 +315,7 @@ in
          && (cfg.browser.app == "zen" || !cfg.browser.manage))
         ''
           deploy_chromafox() {
-            local profiles_ini="$1" userchrome_src="$2" allow_unsigned="$3"
+            local profiles_ini="$1" userchrome_src="$2" allow_unsigned="$3" zen_colors="$4"
             [ -f "$profiles_ini" ] || return 0
             local base rel dir
             base=$(${pkgs.coreutils}/bin/dirname "$profiles_ini")
@@ -323,7 +323,18 @@ in
             [ -n "$rel" ] || return 0
             dir="$base/$rel"
             ${pkgs.coreutils}/bin/mkdir -p "$dir/chrome" "$dir/extensions"
-            ${pkgs.coreutils}/bin/ln -sf "$userchrome_src" "$dir/chrome/userChrome.css"
+            if [ "$zen_colors" = "true" ]; then
+              ${pkgs.coreutils}/bin/mkdir -p "$HOME/.config/chromashell"
+              [ -f "$HOME/.config/chromashell/zen-colors.css" ] || \
+                printf ':root {}\n' > "$HOME/.config/chromashell/zen-colors.css"
+              ${pkgs.coreutils}/bin/ln -sf "$HOME/.config/chromashell/zen-colors.css" \
+                "$dir/chrome/zen-colors.css"
+              ${pkgs.coreutils}/bin/rm -f "$dir/chrome/userChrome.css"
+              { printf '@import url("zen-colors.css");\n\n'; ${pkgs.coreutils}/bin/cat "$userchrome_src"; } \
+                > "$dir/chrome/userChrome.css"
+            else
+              ${pkgs.coreutils}/bin/ln -sf "$userchrome_src" "$dir/chrome/userChrome.css"
+            fi
             ${pkgs.coreutils}/bin/cp -f "${chromaFoxExt}/chromafox@chromashell.xpi" \
               "$dir/extensions/chromafox@chromashell.xpi"
             ${pkgs.gnugrep}/bin/grep -q "legacyUserProfileCustomizations" "$dir/user.js" 2>/dev/null || \
@@ -338,15 +349,15 @@ in
 
           ${lib.optionalString (cfg.browser.app == "firefox") ''
             deploy_chromafox "$HOME/.mozilla/firefox/profiles.ini" \
-              "${inputs.dotfiles}/dots/.config/firefox/userChrome.css" "false"
+              "${inputs.dotfiles}/dots/.config/firefox/userChrome.css" "false" "false"
           ''}
           ${lib.optionalString (cfg.browser.app == "librewolf") ''
             deploy_chromafox "$HOME/.librewolf/profiles.ini" \
-              "${inputs.dotfiles}/dots/.config/firefox/userChrome.css" "true"
+              "${inputs.dotfiles}/dots/.config/firefox/userChrome.css" "true" "false"
           ''}
           ${lib.optionalString (cfg.browser.app == "zen") ''
             deploy_chromafox "$HOME/.config/zen/profiles.ini" \
-              "${inputs.dotfiles}/dots/.config/zen/userChrome.css" "true"
+              "${inputs.dotfiles}/dots/.config/zen/userChrome.css" "true" "true"
           ''}
         ''
     );
@@ -368,6 +379,14 @@ in
               surface=$(jq -r '.surface' <<< "$SCHEME_COLOURS")
               printf 'return {\n  active_border   = "rgba(%sFF)",\n  inactive_border = "rgba(%s00)",\n}\n' "$primary" "$surface" > "$HOME/.config/hypr/colors.lua"
               hyprctl reload
+            '' + lib.optionalString (cfg.browser.app == "zen") ''
+              mkdir -p "$HOME/.config/chromashell"
+              surface_container=$(jq -r '.surfaceContainer' <<< "$SCHEME_COLOURS")
+              outline_variant=$(jq -r '.outlineVariant' <<< "$SCHEME_COLOURS")
+              surface_dim=$(jq -r '.surfaceDim' <<< "$SCHEME_COLOURS")
+              printf ':root {\n    --zen-primary-color: #%s !important;\n    --zen-colors-primary: #%s !important;\n    --zen-colors-secondary: #%s !important;\n    --zen-colors-tertiary: #%s !important;\n    --zen-colors-border: #%s !important;\n    --zen-themed-toolbar-bg: #%s !important;\n    --zen-main-browser-background: #%s !important;\n}\n' \
+                "$surface_container" "$primary" "$surface_container" "$surface" "$outline_variant" "$surface_dim" "$surface_dim" \
+                > "$HOME/.config/chromashell/zen-colors.css"
             '';
           };
         } // lib.optionalAttrs (cfg.music.app != null) {
