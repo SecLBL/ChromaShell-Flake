@@ -182,13 +182,6 @@ let
       package   = pkgs.slack;
       caeConfig = mkCommsEntry "slack"    [ "slack" ]            [ "Slack" "slack" ];
     };
-    whatsapp = {
-      package   = pkgs.whatsapp-for-linux;
-      caeConfig = {
-        discord.enable  = false;
-        whatsapp        = { enable = true; match = [{ class = "whatsapp"; }]; move = true; };
-      };
-    };
   };
 in
 {
@@ -295,7 +288,7 @@ in
         type = types.nullOr (types.enum [
           "discord" "vencord" "equicord" "legcord"   # Discord clients
           "element"                                                     # Matrix
-          "telegram" "slack" "whatsapp"                                # Other
+          "telegram" "slack"                                            # Other
         ]);
         default     = null;
         description = ''
