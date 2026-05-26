@@ -32,13 +32,13 @@ let
     chromium  = { package = pkgs.chromium;  type = "chromium"; };
   };
 
-  # Builds the ChromaShell browser extension as an XPI consumable by HM Firefox modules.
-  chromashellBrowserExt = pkgs.runCommand "chromashell-browser-extension" {
+  # Builds ChromaFox (the ChromaShell browser extension) as an XPI for Firefox-based browsers.
+  chromaFoxExt = pkgs.runCommand "chromafox" {
     nativeBuildInputs = [ pkgs.zip ];
   } ''
     mkdir -p $out
-    cd ${inputs.dotfiles}/dots/.config/chromashell-browser-extension
-    zip -r $out/chromashell@chromashell.xpi manifest.json background.js
+    cd ${inputs.dotfiles}/extra/chromafox
+    zip -r $out/chromafox@chromashell.xpi manifest.json background.js
   '';
 
   # Editor command used in the Hyprland keybind (Super+C).
@@ -295,11 +295,11 @@ in
 
     # ── Browser extension (gecko) — XPI placed in profile's extensions dir ───
     home.file = lib.optionalAttrs (cfg.browser.app == "firefox") {
-      ".mozilla/firefox/default/extensions/chromashell@chromashell.xpi".source =
-        "${chromashellBrowserExt}/chromashell@chromashell.xpi";
+      ".mozilla/firefox/default/extensions/chromafox@chromashell.xpi".source =
+        "${chromaFoxExt}/chromafox@chromashell.xpi";
     } // lib.optionalAttrs (cfg.browser.app == "librewolf") {
-      ".librewolf/default/extensions/chromashell@chromashell.xpi".source =
-        "${chromashellBrowserExt}/chromashell@chromashell.xpi";
+      ".librewolf/default/extensions/chromafox@chromashell.xpi".source =
+        "${chromaFoxExt}/chromafox@chromashell.xpi";
     };
 
     # ── Browser: Zen (not in nixpkgs — extension + userChrome via activation) ─
@@ -314,8 +314,8 @@ in
             mkdir -p "$profile_dir/extensions"
             ln -sf "${inputs.dotfiles}/dots/.config/zen/userChrome.css" \
               "$profile_dir/chrome/userChrome.css"
-            cp -f "${chromashellBrowserExt}/chromashell@chromashell.xpi" \
-              "$profile_dir/extensions/chromashell@chromashell.xpi"
+            cp -f "${chromaFoxExt}/chromafox@chromashell.xpi" \
+              "$profile_dir/extensions/chromafox@chromashell.xpi"
             grep -q "legacyUserProfileCustomizations" "$profile_dir/user.js" 2>/dev/null || \
               printf '%s\n' 'user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);' \
                 >> "$profile_dir/user.js"
