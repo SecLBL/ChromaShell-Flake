@@ -162,41 +162,21 @@ in
       (cfg.music.manage && cfg.music.app != null && musicDefs.${cfg.music.app} ? package)
       [ musicDefs.${cfg.music.app}.package ];
 
-    # ── ChromaShell socket (socket-activated: zero processes at idle) ────────────
-    # Serves ~/.local/state/caelestia/scheme.json — the single source of truth
-    # for all Material You color roles. Any tool can query http://127.0.0.1:29847/.
-    systemd.user.sockets.chromashell = {
-      Unit.Description = "ChromaShell colors socket";
-      Socket = {
-        ListenStream = "127.0.0.1:29847";
-        Accept       = true;
+    # ── ChromaShell SSE server ────────────────────────────────────────────────────
+    # Serves scheme.json (GET /) and pushes live color updates (GET /events) via SSE.
+    # Watches scheme.json via inotifywait and broadcasts to all connected clients.
+    systemd.user.services.chromashell = {
+      Unit = {
+        Description = "ChromaShell colors SSE server";
+        After       = [ "default.target" ];
       };
-      Install.WantedBy = [ "sockets.target" ];
-    };
-
-    systemd.user.services."chromashell@" = {
-      Unit.Description = "ChromaShell colors handler";
       Service = {
-        StandardInput  = "socket";
-        StandardOutput = "socket";
-        ExecStart      = let
-          handler = pkgs.writeShellScript "chromashell-colors-handler" ''
-            # Drain incoming HTTP headers
-            while IFS= read -r -t 5 line; do
-              line="''${line%$'\r'}"
-              [[ -z "$line" ]] && break
-            done
-            scheme="''${XDG_STATE_HOME:-$HOME/.local/state}/caelestia/scheme.json"
-            if [[ -f "$scheme" ]]; then
-              printf 'HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n'
-              cat "$scheme"
-            else
-              printf 'HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n'
-            fi
-          '';
-        in "${handler}";
-        Type = "oneshot";
+        ExecStart  = "${pkgs.python3}/bin/python3 ${./chromashell-sse-server.py}";
+        Environment = [ "PATH=${pkgs.inotify-tools}/bin" ];
+        Restart    = "on-failure";
+        RestartSec = "2s";
       };
+      Install.WantedBy = [ "default.target" ];
     };
 
     # ── Caelestia shell + CLI ─────────────────────────────────────────────────
