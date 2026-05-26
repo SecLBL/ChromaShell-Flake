@@ -27,7 +27,7 @@ let
   browserDefs = {
     firefox   = { package = pkgs.firefox;   type = "gecko"; };
     librewolf = { package = pkgs.librewolf; type = "gecko"; };
-    zen       = {                            type = "gecko"; };
+    zen       = { package = inputs.zen-browser.packages.${system}.default; type = "gecko"; };
     brave     = { package = pkgs.brave;     type = "chromium"; };
     chromium  = { package = pkgs.chromium;  type = "chromium"; };
   };
@@ -247,10 +247,11 @@ in
         (cfg.music.manage && cfg.music.app != null && musicDefs.${cfg.music.app} ? package)
         [ musicDefs.${cfg.music.app}.package ]
       ++
-      # Gecko browsers are installed via their HM modules; only chromium-based go here
+      # firefox/librewolf installed via HM modules; zen + chromium-based via home.packages
       lib.optionals
         (cfg.browser.manage && cfg.browser.app != null
-         && browserDefs.${cfg.browser.app}.type == "chromium")
+         && browserDefs.${cfg.browser.app} ? package
+         && (browserDefs.${cfg.browser.app}.type == "chromium" || cfg.browser.app == "zen"))
         [ browserDefs.${cfg.browser.app}.package ];
 
     # ── ChromaShell SSE server ────────────────────────────────────────────────────

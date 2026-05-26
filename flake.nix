@@ -24,9 +24,14 @@
       url = "github:Gerg-L/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    zen-browser = {
+      url = "github:youwen5/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, dotfiles, caelestia-shell, caelestia-cli, spicetify-nix, ... }@inputs: {
+  outputs = { self, nixpkgs, dotfiles, caelestia-shell, caelestia-cli, spicetify-nix, zen-browser, ... }@inputs: {
     homeManagerModules.default = import ./home-module.nix inputs;
     nixosModules.default       = import ./nixos-module.nix;
   };
