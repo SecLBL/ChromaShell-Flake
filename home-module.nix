@@ -208,6 +208,9 @@ in
         package = inputs.caelestia-cli.packages.${system}.default;
         settings = {
           theme = {
+            # Spicetify colors are handled by the JS extension via the colors socket.
+            # caelestia-cli's apply_spicetify (color.ini) is redundant with spicetify-nix.
+            enableSpicetify = lib.mkIf (cfg.music.app == "spicetify") false;
             postHook = ''
               primary=$(jq -r '.primary' <<< "$SCHEME_COLOURS")
               surface=$(jq -r '.surface' <<< "$SCHEME_COLOURS")
