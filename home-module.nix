@@ -139,7 +139,8 @@ in
 
     # ── Spicetify via spicetify-nix (only when manage = true) ────────────────
     programs.spicetify = mkIf (cfg.music.manage && cfg.music.app == "spicetify") {
-      enable = true;
+      enable               = true;
+      alwaysEnableDevTools = true;
       theme = {
         name          = "caelestia";
         src           = "${inputs.dotfiles}/dots/.config/spicetify/Themes/caelestia";
