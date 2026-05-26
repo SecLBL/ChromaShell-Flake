@@ -57,15 +57,15 @@ in
       "Thunar".source = "${dots}/Thunar";
 
       # ── Editor configs (deployed when editor.app is set) ────────────────
-      "VSCodium/User/settings.json"    = mkIf (cfg.editor.app == "vscodium") { source = "${dots}/vscode/User/settings.json";    force = true; };
-      "VSCodium/User/keybindings.json" = mkIf (cfg.editor.app == "vscodium") { source = "${dots}/vscode/User/keybindings.json"; force = true; };
-      "codium-flags.conf"              = mkIf (cfg.editor.app == "vscodium") { source = "${dots}/vscode/flags.conf";            force = true; };
-      "Code/User/settings.json"        = mkIf (cfg.editor.app == "vscode")   { source = "${dots}/vscode/User/settings.json";    force = true; };
-      "Code/User/keybindings.json"     = mkIf (cfg.editor.app == "vscode")   { source = "${dots}/vscode/User/keybindings.json"; force = true; };
-      "code-flags.conf"                = mkIf (cfg.editor.app == "vscode")   { source = "${dots}/vscode/flags.conf";            force = true; };
-      "zed/settings.json"              = mkIf (cfg.editor.app == "zed")      { source = "${dots}/zed/settings.json";            force = true; };
-      "zed/keymap.json"                = mkIf (cfg.editor.app == "zed")      { source = "${dots}/zed/keymap.json";              force = true; };
-      "micro/settings.json"            = mkIf (cfg.editor.app == "micro")    { source = "${dots}/micro/settings.json";          force = true; };
+      "VSCodium/User/settings.json"    = mkIf (cfg.editor.app == "vscodium") { source = "${dots}/vscode/User/settings.json"; };
+      "VSCodium/User/keybindings.json" = mkIf (cfg.editor.app == "vscodium") { source = "${dots}/vscode/User/keybindings.json"; };
+      "codium-flags.conf"              = mkIf (cfg.editor.app == "vscodium") { source = "${dots}/vscode/flags.conf"; };
+      "Code/User/settings.json"        = mkIf (cfg.editor.app == "vscode")   { source = "${dots}/vscode/User/settings.json"; };
+      "Code/User/keybindings.json"     = mkIf (cfg.editor.app == "vscode")   { source = "${dots}/vscode/User/keybindings.json"; };
+      "code-flags.conf"                = mkIf (cfg.editor.app == "vscode")   { source = "${dots}/vscode/flags.conf"; };
+      "zed/settings.json"              = mkIf (cfg.editor.app == "zed")      { source = "${dots}/zed/settings.json"; };
+      "zed/keymap.json"                = mkIf (cfg.editor.app == "zed")      { source = "${dots}/zed/keymap.json"; };
+      "micro/settings.json"            = mkIf (cfg.editor.app == "micro")    { source = "${dots}/micro/settings.json"; };
 
       # ── Hyprland editor keybind override (flake-managed, not user-editable) ──
       "hypr/custom/editor.lua"         = mkIf (cfg.editor.app != null) {
