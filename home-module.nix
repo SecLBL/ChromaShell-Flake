@@ -142,7 +142,7 @@ in
       enable = true;
       theme = {
         name          = "caelestia";
-        src           = "${inputs.dotfiles}/dots/.config/spicetify/Themes";
+        src           = "${inputs.dotfiles}/dots/.config/spicetify/Themes/caelestia";
         injectCss     = true;
         replaceColors = true;
         homeConfig    = true;
