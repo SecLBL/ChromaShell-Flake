@@ -19,9 +19,20 @@
       url = "git+file:///home/lbl/System_Maintenance/caelestia/cli";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Caelestia upstream — spicetify theme lives at spicetify/
+    caelestia-assets = {
+      url = "github:caelestia-dots/caelestia";
+      flake = false;
+    };
+
+    spicetify-nix = {
+      url = "github:Gerg-L/spicetify-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, dotfiles, caelestia-shell, caelestia-cli, ... }@inputs: {
+  outputs = { self, nixpkgs, dotfiles, caelestia-shell, caelestia-cli, caelestia-assets, spicetify-nix, ... }@inputs: {
     homeManagerModules.default = import ./home-module.nix inputs;
     nixosModules.default       = import ./nixos-module.nix;
   };

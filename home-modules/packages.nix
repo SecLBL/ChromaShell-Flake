@@ -38,6 +38,9 @@ in
       # ── Theming ──────────────────────────────
       adw-gtk3
 
+      # ── Caelestia spawn support ──────────────
+      app2unit
+
       # ── System / scripting ───────────────────
       inotify-tools
       jq
