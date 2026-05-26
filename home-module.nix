@@ -165,7 +165,7 @@ in
     # ── ChromaShell SSE server ────────────────────────────────────────────────────
     # Serves scheme.json (GET /) and pushes live color updates (GET /events) via SSE.
     # Watches scheme.json via inotifywait and broadcasts to all connected clients.
-    systemd.user.services.chromashell = {
+    systemd.user.services.chromashell-color-server = {
       Unit = {
         Description = "ChromaShell colors SSE server";
         After       = [ "default.target" ];
