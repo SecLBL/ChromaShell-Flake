@@ -165,7 +165,7 @@ in
     # ── Caelestia colors socket (socket-activated: zero processes at idle) ──────
     # Serves ~/.local/state/caelestia/scheme.json — the single source of truth
     # for all Material You color roles. Any tool can query http://127.0.0.1:29847/.
-    systemd.user.sockets.caelestia-colors = mkIf (cfg.music.app == "spicetify") {
+    systemd.user.sockets.caelestia-colors = {
       Unit.Description = "Caelestia colors socket";
       Socket = {
         ListenStream = "127.0.0.1:29847";
@@ -174,7 +174,7 @@ in
       Install.WantedBy = [ "sockets.target" ];
     };
 
-    systemd.user.services."caelestia-colors@" = mkIf (cfg.music.app == "spicetify") {
+    systemd.user.services."caelestia-colors@" = {
       Unit.Description = "Caelestia colors handler";
       Service = {
         StandardInput  = "socket";
