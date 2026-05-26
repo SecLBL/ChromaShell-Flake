@@ -28,8 +28,15 @@ in
       # ── Kitty ──────────────────────────────────────────────────────────
       "kitty".source = "${dots}/kitty";
 
+      # ── Btop (conf only — themes/ stays writable for caelestia-cli) ────
+      "btop/btop.conf".source = "${dots}/btop/btop.conf";
+
+      # ── Fastfetch ───────────────────────────────────────────────────────
+      "fastfetch/config.jsonc".source = "${dots}/fastfetch/config.jsonc";
+
       # ── Fish ───────────────────────────────────────────────────────────
-      "fish/conf.d/chromashell.fish".source = "${dots}/fish/conf.d/chromashell.fish";
+      "fish/config.fish".source   = "${dots}/fish/config.fish";
+      "fish/functions".source     = "${dots}/fish/functions";
 
       # ── Starship ───────────────────────────────────────────────────────
       "starship.toml".source = "${dots}/starship.toml";

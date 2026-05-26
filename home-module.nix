@@ -142,7 +142,7 @@ in
       enable = true;
       theme = {
         name          = "caelestia";
-        src           = "${inputs.caelestia-assets}/spicetify";
+        src           = "${inputs.dotfiles}/dots/.config/spicetify";
         injectCss     = true;
         replaceColors = true;
         homeConfig    = true;
@@ -163,7 +163,6 @@ in
         package = inputs.caelestia-cli.packages.${system}.default;
         settings = {
           theme = {
-            enableHypr = false;
             postHook = ''
               primary=$(jq -r '.primary' <<< "$SCHEME_COLOURS")
               surface=$(jq -r '.surface' <<< "$SCHEME_COLOURS")

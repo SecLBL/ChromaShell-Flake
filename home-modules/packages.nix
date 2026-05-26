@@ -41,6 +41,10 @@ in
       # ── Caelestia spawn support ──────────────
       app2unit
 
+      # ── System monitoring ────────────────────
+      btop
+      fastfetch
+
       # ── System / scripting ───────────────────
       inotify-tools
       jq
