@@ -270,20 +270,20 @@ in
       Install.WantedBy = [ "default.target" ];
     };
 
-    # ── Browser: Firefox ────────────────────────────────────────────────────
-    programs.firefox = mkIf (cfg.browser.app == "firefox") {
+    # ── Browser: Firefox (manage = true — HM owns install + profile) ───────────
+    programs.firefox = mkIf (cfg.browser.manage && cfg.browser.app == "firefox") {
       enable  = true;
-      package = if cfg.browser.manage then pkgs.firefox else null;
+      package = pkgs.firefox;
       profiles.default = {
         userChrome = builtins.readFile "${inputs.dotfiles}/dots/.config/firefox/userChrome.css";
         settings."toolkit.legacyUserProfileCustomizations.stylesheets" = true;
       };
     };
 
-    # ── Browser: LibreWolf ───────────────────────────────────────────────────
-    programs.librewolf = mkIf (cfg.browser.app == "librewolf") {
+    # ── Browser: LibreWolf (manage = true — HM owns install + profile) ──────
+    programs.librewolf = mkIf (cfg.browser.manage && cfg.browser.app == "librewolf") {
       enable  = true;
-      package = if cfg.browser.manage then pkgs.librewolf else null;
+      package = pkgs.librewolf;
       profiles.default = {
         userChrome = builtins.readFile "${inputs.dotfiles}/dots/.config/firefox/userChrome.css";
         settings = {
@@ -293,38 +293,61 @@ in
       };
     };
 
-    # ── Browser extension (gecko) — XPI placed in profile's extensions dir ───
-    home.file = lib.optionalAttrs (cfg.browser.app == "firefox") {
-      ".mozilla/firefox/default/extensions/chromafox@chromashell.xpi".source =
-        "${chromaFoxExt}/chromafox@chromashell.xpi";
-    } // lib.optionalAttrs (cfg.browser.app == "librewolf") {
-      ".librewolf/default/extensions/chromafox@chromashell.xpi".source =
-        "${chromaFoxExt}/chromafox@chromashell.xpi";
-    };
+    # ── Browser extension (gecko, manage = true) — XPI into HM "default" profile ─
+    home.file =
+      lib.optionalAttrs (cfg.browser.manage && cfg.browser.app == "firefox") {
+        ".mozilla/firefox/default/extensions/chromafox@chromashell.xpi".source =
+          "${chromaFoxExt}/chromafox@chromashell.xpi";
+      } //
+      lib.optionalAttrs (cfg.browser.manage && cfg.browser.app == "librewolf") {
+        ".librewolf/default/extensions/chromafox@chromashell.xpi".source =
+          "${chromaFoxExt}/chromafox@chromashell.xpi";
+      };
 
-    # ── Browser: Zen (not in nixpkgs — extension + userChrome via activation) ─
-    home.activation.chromashellZenSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-      lib.optionalString (cfg.browser.app == "zen") ''
-        zen_base="$HOME/.zen"
-        if [ -d "$zen_base" ]; then
-          profile_path=$(awk -F= '/^Path=/{print $2; exit}' "$zen_base/profiles.ini" 2>/dev/null)
-          if [ -n "$profile_path" ]; then
-            profile_dir="$zen_base/$profile_path"
-            mkdir -p "$profile_dir/chrome"
-            mkdir -p "$profile_dir/extensions"
-            ln -sf "${inputs.dotfiles}/dots/.config/zen/userChrome.css" \
-              "$profile_dir/chrome/userChrome.css"
+    # ── Browser (gecko, manage = false) — detect profile, deploy ChromaFox ───
+    # manage = false: user owns the browser install; flake parses profiles.ini
+    # zen: always via activation (not in nixpkgs, no HM module available)
+    home.activation.chromashellBrowserSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      lib.optionalString
+        (cfg.browser.app != null
+         && browserDefs.${cfg.browser.app}.type == "gecko"
+         && (cfg.browser.app == "zen" || !cfg.browser.manage))
+        ''
+          deploy_chromafox() {
+            local profiles_ini="$1" userchrome_src="$2" allow_unsigned="$3"
+            [ -f "$profiles_ini" ] || return
+            local base; base="$(dirname "$profiles_ini")"
+            local rel; rel=$(awk -F= '/^Path=/{print $2; exit}' "$profiles_ini" 2>/dev/null)
+            [ -n "$rel" ] || return
+            local dir="$base/$rel"
+            mkdir -p "$dir/chrome" "$dir/extensions"
+            ln -sf "$userchrome_src" "$dir/chrome/userChrome.css"
             cp -f "${chromaFoxExt}/chromafox@chromashell.xpi" \
-              "$profile_dir/extensions/chromafox@chromashell.xpi"
-            grep -q "legacyUserProfileCustomizations" "$profile_dir/user.js" 2>/dev/null || \
-              printf '%s\n' 'user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);' \
-                >> "$profile_dir/user.js"
-            grep -q "xpinstall.signatures.required" "$profile_dir/user.js" 2>/dev/null || \
-              printf '%s\n' 'user_pref("xpinstall.signatures.required", false);' \
-                >> "$profile_dir/user.js"
-          fi
-        fi
-      ''
+              "$dir/extensions/chromafox@chromashell.xpi"
+            grep -q "legacyUserProfileCustomizations" "$dir/user.js" 2>/dev/null || \
+              printf '%s\n' \
+                'user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);' \
+                >> "$dir/user.js"
+            if [ "$allow_unsigned" = "true" ]; then
+              grep -q "xpinstall.signatures.required" "$dir/user.js" 2>/dev/null || \
+                printf '%s\n' 'user_pref("xpinstall.signatures.required", false);' \
+                  >> "$dir/user.js"
+            fi
+          }
+
+          ${lib.optionalString (cfg.browser.app == "firefox") ''
+            deploy_chromafox "$HOME/.mozilla/firefox/profiles.ini" \
+              "${inputs.dotfiles}/dots/.config/firefox/userChrome.css" "false"
+          ''}
+          ${lib.optionalString (cfg.browser.app == "librewolf") ''
+            deploy_chromafox "$HOME/.librewolf/profiles.ini" \
+              "${inputs.dotfiles}/dots/.config/firefox/userChrome.css" "true"
+          ''}
+          ${lib.optionalString (cfg.browser.app == "zen") ''
+            deploy_chromafox "$HOME/.zen/profiles.ini" \
+              "${inputs.dotfiles}/dots/.config/zen/userChrome.css" "true"
+          ''}
+        ''
     );
 
     # ── Caelestia shell + CLI ─────────────────────────────────────────────────
