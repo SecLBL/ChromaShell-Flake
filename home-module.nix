@@ -162,11 +162,11 @@ in
       (cfg.music.manage && cfg.music.app != null && musicDefs.${cfg.music.app} ? package)
       [ musicDefs.${cfg.music.app}.package ];
 
-    # ── Caelestia colors socket (socket-activated: zero processes at idle) ──────
+    # ── ChromaShell socket (socket-activated: zero processes at idle) ────────────
     # Serves ~/.local/state/caelestia/scheme.json — the single source of truth
     # for all Material You color roles. Any tool can query http://127.0.0.1:29847/.
-    systemd.user.sockets.caelestia-colors = {
-      Unit.Description = "Caelestia colors socket";
+    systemd.user.sockets.chromashell = {
+      Unit.Description = "ChromaShell colors socket";
       Socket = {
         ListenStream = "127.0.0.1:29847";
         Accept       = true;
@@ -174,13 +174,13 @@ in
       Install.WantedBy = [ "sockets.target" ];
     };
 
-    systemd.user.services."caelestia-colors@" = {
-      Unit.Description = "Caelestia colors handler";
+    systemd.user.services."chromashell@" = {
+      Unit.Description = "ChromaShell colors handler";
       Service = {
         StandardInput  = "socket";
         StandardOutput = "socket";
         ExecStart      = let
-          handler = pkgs.writeShellScript "caelestia-colors-handler" ''
+          handler = pkgs.writeShellScript "chromashell-colors-handler" ''
             # Drain incoming HTTP headers
             while IFS= read -r -t 5 line; do
               line="''${line%$'\r'}"
