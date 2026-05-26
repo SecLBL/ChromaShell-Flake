@@ -35,6 +35,9 @@ in
       pamixer
       pulseaudio      # wpctl / pactl
 
+      # ── File manager ─────────────────────────
+      xfce.thunar
+
       # ── Theming ──────────────────────────────
       adw-gtk3
 

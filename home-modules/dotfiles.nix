@@ -43,6 +43,9 @@ in
 
       # ── Starship ───────────────────────────────────────────────────────
       "starship.toml".source = "${dots}/starship.toml";
+
+      # ── Thunar ─────────────────────────────────────────────────────────
+      "Thunar".source = "${dots}/Thunar";
     };
 
     # Writable per-machine files — created once, never overwritten by home-manager
