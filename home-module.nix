@@ -25,7 +25,7 @@ let
   editorDefs = {
     vscodium = { package = pkgs.vscodium;   cmd = "codium"; };
     vscode   = { package = pkgs.vscode;     cmd = "code"; };
-    zed      = { package = pkgs.zed-editor; cmd = "zed"; };
+    zed      = { package = pkgs.zed-editor; cmd = "zeditor"; };
     micro    = { package = pkgs.micro;      cmd = "kitty -e micro"; };
     helix    = { package = pkgs.helix;      cmd = "kitty -e hx"; };
     neovim   = { package = pkgs.neovim;     cmd = "kitty -e nvim"; };

@@ -10,7 +10,7 @@ let
   editorCmds = {
     vscodium = "codium";
     vscode   = "code";
-    zed      = "zed";
+    zed      = "zeditor";
     micro    = "kitty -e micro";
     helix    = "kitty -e hx";
     neovim   = "kitty -e nvim";
