@@ -36,7 +36,7 @@ in
       pulseaudio      # wpctl / pactl
 
       # ── File manager ─────────────────────────
-      xfce.thunar
+      thunar
 
       # ── Theming ──────────────────────────────
       adw-gtk3
