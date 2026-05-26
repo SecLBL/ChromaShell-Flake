@@ -361,7 +361,7 @@ in
         After       = [ "default.target" ];
       };
       Service = {
-        ExecStart  = "${pkgs.python3}/bin/python3 ${./chromashell-sse-server.py}";
+        ExecStart  = "${pkgs.python3}/bin/python3 ${inputs.dotfiles}/extra/chromashell-sse-server.py";
         Environment = [ "PATH=${pkgs.inotify-tools}/bin" ];
         Restart    = "on-failure";
         RestartSec = "2s";
