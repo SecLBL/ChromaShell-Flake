@@ -316,21 +316,21 @@ in
           deploy_chromafox() {
             local profiles_ini="$1" userchrome_src="$2" allow_unsigned="$3"
             [ -f "$profiles_ini" ] || return
-            local base; base="$(dirname "$profiles_ini")"
-            local rel; rel=$(awk -F= '/^Path=/{print $2; exit}' "$profiles_ini" 2>/dev/null)
+            local base rel dir
+            base=$(${pkgs.coreutils}/bin/dirname "$profiles_ini")
+            rel=$(${pkgs.gawk}/bin/awk -F= '/^Path=/{print $2; exit}' "$profiles_ini" 2>/dev/null)
             [ -n "$rel" ] || return
-            local dir="$base/$rel"
-            mkdir -p "$dir/chrome" "$dir/extensions"
-            ln -sf "$userchrome_src" "$dir/chrome/userChrome.css"
-            cp -f "${chromaFoxExt}/chromafox@chromashell.xpi" \
+            dir="$base/$rel"
+            ${pkgs.coreutils}/bin/mkdir -p "$dir/chrome" "$dir/extensions"
+            ${pkgs.coreutils}/bin/ln -sf "$userchrome_src" "$dir/chrome/userChrome.css"
+            ${pkgs.coreutils}/bin/cp -f "${chromaFoxExt}/chromafox@chromashell.xpi" \
               "$dir/extensions/chromafox@chromashell.xpi"
-            grep -q "legacyUserProfileCustomizations" "$dir/user.js" 2>/dev/null || \
-              printf '%s\n' \
-                'user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);' \
+            ${pkgs.gnugrep}/bin/grep -q "legacyUserProfileCustomizations" "$dir/user.js" 2>/dev/null || \
+              printf 'user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);\n' \
                 >> "$dir/user.js"
             if [ "$allow_unsigned" = "true" ]; then
-              grep -q "xpinstall.signatures.required" "$dir/user.js" 2>/dev/null || \
-                printf '%s\n' 'user_pref("xpinstall.signatures.required", false);' \
+              ${pkgs.gnugrep}/bin/grep -q "xpinstall.signatures.required" "$dir/user.js" 2>/dev/null || \
+                printf 'user_pref("xpinstall.signatures.required", false);\n' \
                   >> "$dir/user.js"
             fi
           }
