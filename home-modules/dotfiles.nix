@@ -6,6 +6,15 @@ let
   inherit (lib) mkIf;
   cfg  = config.programs.chromashell;
   dots = "${inputs.dotfiles}/dots/.config";
+
+  editorCmds = {
+    vscodium = "codium";
+    vscode   = "code";
+    zed      = "zed";
+    micro    = "kitty -e micro";
+    helix    = "kitty -e hx";
+    neovim   = "kitty -e nvim";
+  };
 in
 {
   config = mkIf cfg.enable {
@@ -46,6 +55,24 @@ in
 
       # ── Thunar ─────────────────────────────────────────────────────────
       "Thunar".source = "${dots}/Thunar";
+
+      # ── Editor configs (deployed when editor.app is set) ────────────────
+      "VSCodium/User/settings.json"    = mkIf (cfg.editor.app == "vscodium") { source = "${dots}/vscode/User/settings.json"; };
+      "VSCodium/User/keybindings.json" = mkIf (cfg.editor.app == "vscodium") { source = "${dots}/vscode/User/keybindings.json"; };
+      "codium-flags.conf"              = mkIf (cfg.editor.app == "vscodium") { source = "${dots}/vscode/flags.conf"; };
+      "Code/User/settings.json"        = mkIf (cfg.editor.app == "vscode")   { source = "${dots}/vscode/User/settings.json"; };
+      "Code/User/keybindings.json"     = mkIf (cfg.editor.app == "vscode")   { source = "${dots}/vscode/User/keybindings.json"; };
+      "code-flags.conf"                = mkIf (cfg.editor.app == "vscode")   { source = "${dots}/vscode/flags.conf"; };
+      "zed/settings.json"              = mkIf (cfg.editor.app == "zed")      { source = "${dots}/zed/settings.json"; };
+      "zed/keymap.json"                = mkIf (cfg.editor.app == "zed")      { source = "${dots}/zed/keymap.json"; };
+      "micro/settings.json"            = mkIf (cfg.editor.app == "micro")    { source = "${dots}/micro/settings.json"; };
+
+      # ── Hyprland editor keybind override (flake-managed, not user-editable) ──
+      "hypr/custom/editor.lua"         = mkIf (cfg.editor.app != null) {
+        text = if cfg.editor.app != null
+          then "require(\"config.variables\").editor = \"${editorCmds.${cfg.editor.app}}\""
+          else "";
+      };
 
       # ── uwsm session environment ────────────────────────────────────────
       "uwsm/env".source          = "${dots}/uwsm/env";

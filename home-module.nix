@@ -20,6 +20,17 @@ let
     };
   };
 
+  # Editor command used in the Hyprland keybind (Super+C).
+  # Terminal editors are wrapped in kitty so they open a window.
+  editorDefs = {
+    vscodium = { package = pkgs.vscodium;   cmd = "codium"; };
+    vscode   = { package = pkgs.vscode;     cmd = "code"; };
+    zed      = { package = pkgs.zed-editor; cmd = "zed"; };
+    micro    = { package = pkgs.micro;      cmd = "kitty -e micro"; };
+    helix    = { package = pkgs.helix;      cmd = "kitty -e hx"; };
+    neovim   = { package = pkgs.neovim;     cmd = "kitty -e nvim"; };
+  };
+
   # Per-app definitions.
   # package: omitted for spicetify (provided by programs.spicetify via spicetify-nix).
   # caeConfig: written to cli.json → toggles.music — overrides caelestia defaults.
@@ -110,6 +121,30 @@ in
       };
     };
 
+    editor = {
+      manage = mkOption {
+        type        = types.bool;
+        default     = false;
+        description = "Install the editor via the flake. false = user manages installation themselves";
+      };
+      app = mkOption {
+        type = types.nullOr (types.enum [
+          "vscodium" "vscode"            # GUI — VS Code family
+          "zed"                          # GUI — Zed
+          "micro"                        # terminal — lightweight
+          "helix" "neovim"               # terminal — modal (no config managed by flake)
+        ]);
+        default     = null;
+        description = ''
+          Editor launched by Super+C and set as $editor in Hyprland.
+            null              — flake does nothing (no install, no keybind override)
+            app + manage=false — keybind set to app, user installs it
+            app + manage=true  — flake installs the app and sets keybind
+          Note: vscode requires nixpkgs.config.allowUnfree = true.
+        '';
+      };
+    };
+
     music = {
       manage = mkOption {
         type        = types.bool;
@@ -156,6 +191,11 @@ in
         }
       ];
     };
+
+    # ── Editor package (manage = true) ───────────────────────────────────────
+    home.packages = lib.optionals
+      (cfg.editor.manage && cfg.editor.app != null)
+      [ editorDefs.${cfg.editor.app}.package ];
 
     # ── Music app package (manage = true, non-spicetify) ─────────────────────
     home.packages = lib.optionals
