@@ -345,7 +345,7 @@ in
               "${inputs.dotfiles}/dots/.config/firefox/userChrome.css" "true"
           ''}
           ${lib.optionalString (cfg.browser.app == "zen") ''
-            deploy_chromafox "$HOME/.zen/profiles.ini" \
+            deploy_chromafox "$HOME/.config/zen/profiles.ini" \
               "${inputs.dotfiles}/dots/.config/zen/userChrome.css" "true"
           ''}
         ''
