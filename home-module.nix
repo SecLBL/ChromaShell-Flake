@@ -162,15 +162,41 @@ in
       (cfg.music.manage && cfg.music.app != null && musicDefs.${cfg.music.app} ? package)
       [ musicDefs.${cfg.music.app}.package ];
 
-    # ── Spicetify colors server (serves color.ini over localhost for the JS extension) ──
-    systemd.user.services.caelestia-colors-server = mkIf (cfg.music.app == "spicetify") {
-      Unit.Description = "Caelestia spicetify colors HTTP server";
-      Unit.After        = [ "default.target" ];
-      Service = {
-        ExecStart = "${pkgs.python3}/bin/python3 ${./caelestia-colors-server.py}";
-        Restart   = "on-failure";
+    # ── Spicetify colors socket (socket-activated: zero processes at idle) ─────
+    # systemd holds only the TCP socket. A bash handler spawns per connection,
+    # reads color.ini, writes the HTTP response, and exits immediately.
+    systemd.user.sockets.caelestia-colors = mkIf (cfg.music.app == "spicetify") {
+      Unit.Description = "Caelestia spicetify colors socket";
+      Socket = {
+        ListenStream = "127.0.0.1:29847";
+        Accept       = true;
       };
-      Install.WantedBy = [ "default.target" ];
+      Install.WantedBy = [ "sockets.target" ];
+    };
+
+    systemd.user.services."caelestia-colors@" = mkIf (cfg.music.app == "spicetify") {
+      Unit.Description = "Caelestia spicetify colors handler";
+      Service = {
+        StandardInput  = "socket";
+        StandardOutput = "socket";
+        ExecStart      = let
+          handler = pkgs.writeShellScript "caelestia-colors-handler" ''
+            # Drain incoming HTTP headers
+            while IFS= read -r -t 5 line; do
+              line="''${line%$'\r'}"
+              [[ -z "$line" ]] && break
+            done
+            ini="''${XDG_CONFIG_HOME:-$HOME/.config}/spicetify/Themes/caelestia/color.ini"
+            if [[ -f "$ini" ]]; then
+              printf 'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n'
+              cat "$ini"
+            else
+              printf 'HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n'
+            fi
+          '';
+        in "${handler}";
+        Type = "oneshot";
+      };
     };
 
     # ── Caelestia shell + CLI ─────────────────────────────────────────────────
