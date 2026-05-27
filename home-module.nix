@@ -485,20 +485,12 @@ in
             # Spicetify colors are handled by the JS extension via the colors socket.
             # caelestia-cli's apply_spicetify (color.ini) is redundant with spicetify-nix.
             enableSpicetify = lib.mkIf (cfg.music.app == "spicetify") false;
-            postHook = ''
-              primary=$(jq -r '.primary' <<< "$SCHEME_COLOURS")
-              surface=$(jq -r '.surface' <<< "$SCHEME_COLOURS")
-              printf 'return {\n  active_border   = "rgba(%sFF)",\n  inactive_border = "rgba(%s00)",\n}\n' "$primary" "$surface" > "$HOME/.config/hypr/colors.lua"
-              hyprctl reload
-            '' + lib.optionalString (cfg.browser.app == "zen") ''
-              mkdir -p "$HOME/.config/chromashell"
-              surface_container=$(jq -r '.surfaceContainer' <<< "$SCHEME_COLOURS")
-              outline_variant=$(jq -r '.outlineVariant' <<< "$SCHEME_COLOURS")
-              surface_dim=$(jq -r '.surfaceDim' <<< "$SCHEME_COLOURS")
-              printf ':root {\n    --zen-primary-color: #%s !important;\n    --zen-colors-primary: #%s !important;\n    --zen-colors-secondary: #%s !important;\n    --zen-colors-tertiary: #%s !important;\n    --zen-colors-border: #%s !important;\n    --zen-themed-toolbar-bg: #%s !important;\n    --zen-main-browser-background: #%s !important;\n}\n' \
-                "$surface_container" "$primary" "$surface_container" "$surface" "$outline_variant" "$surface_dim" "$surface_dim" \
-                > "$HOME/.config/chromashell/zen-colors.css"
-            '';
+            postHook =
+              let
+                browserArg = lib.optionalString (cfg.browser.app != null) " --browser ${cfg.browser.app}";
+                commsArg   = lib.optionalString (cfg.comms.app   != null) " --comms ${cfg.comms.app}";
+              in
+                "bash ${inputs.dotfiles}/extra/caelestia-posthook.sh${browserArg}${commsArg}";
           };
         } // lib.optionalAttrs (cfg.music.app != null) {
           toggles.music = musicDefs.${cfg.music.app}.caeConfig;
