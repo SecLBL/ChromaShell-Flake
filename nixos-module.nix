@@ -25,6 +25,10 @@ in
     services.gnome.gnome-keyring.enable = true;
     security.pam.services.sddm.enableGnomeKeyring = true;
 
+    # i2c-dev module + udev rules so ddcutil can control monitor brightness via DDC/CI.
+    # The user still needs to be in the i2c group (set in NixOS-Configuration_2).
+    hardware.i2c.enable = true;
+
     # Patch element-desktop's app.asar so it injects ~/.config/chromashell/element.css
     # into every renderer window. The CSS is written by chromashell-posthook.sh on each
     # theme change. This overlay must live here (NixOS level) because useGlobalPkgs=true

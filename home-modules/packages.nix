@@ -48,6 +48,7 @@ in
 
       # ── System monitoring ────────────────────
       btop
+      ddcutil
       fastfetch
 
       # ── System / scripting ───────────────────
