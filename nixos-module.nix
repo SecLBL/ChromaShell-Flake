@@ -24,5 +24,39 @@ in
     # PAM integration unlocks the keyring automatically on login via the display manager.
     services.gnome.gnome-keyring.enable = true;
     security.pam.services.sddm.enableGnomeKeyring = true;
+
+    # Patch element-desktop's app.asar so it injects ~/.config/chromashell/element.css
+    # into every renderer window. The CSS is written by chromashell-posthook.sh on each
+    # theme change. This overlay must live here (NixOS level) because useGlobalPkgs=true
+    # in HM means HM nixpkgs.overlays are ignored.
+    nixpkgs.overlays = [
+      (_final: prev: {
+        element-desktop = prev.element-desktop.overrideAttrs (old: {
+          nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ prev.asar ];
+          postFixup = (old.postFixup or "") + ''
+            tmpdir=$(mktemp -d)
+            ${prev.asar}/bin/asar extract "$out/share/element/app.asar" "$tmpdir"
+            cat >> "$tmpdir/lib/electron-main.js" << 'CHROMASHELL_EOF'
+
+// ChromaShell: inject ~/.config/chromashell/element.css on every page load
+{
+  const _cssPath = path.join(process.env["XDG_CONFIG_HOME"] ?? path.join(app.getPath("home"), ".config"), "chromashell", "element.css");
+  app.on("browser-window-created", (_, win) => {
+    win.webContents.on("did-finish-load", () => {
+      try {
+        if (fs.existsSync(_cssPath)) {
+          win.webContents.insertCSS(fs.readFileSync(_cssPath, "utf8")).catch(() => {});
+        }
+      } catch {}
+    });
+  });
+}
+CHROMASHELL_EOF
+            ${prev.asar}/bin/asar pack "$tmpdir" "$out/share/element/app.asar"
+            rm -rf "$tmpdir"
+          '';
+        });
+      })
+    ];
   };
 }

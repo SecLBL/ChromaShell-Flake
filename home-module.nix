@@ -467,7 +467,7 @@ in
       name        = "Element";
       genericName = "Matrix Client";
       comment     = "Feature-rich client for Matrix.org";
-      exec        = "element-desktop --require ${inputs.dotfiles}/extra/chromashell-element-inject.js --password-store=gnome-libsecret %u";
+      exec        = "element-desktop --password-store=gnome-libsecret %u";
       icon        = "element";
       categories  = [ "Network" "InstantMessaging" "Chat" ];
       mimeType    = [ "x-scheme-handler/element" "x-scheme-handler/io.element.desktop" ];
