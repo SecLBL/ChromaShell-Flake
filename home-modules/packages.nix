@@ -34,6 +34,7 @@ in
       noise-repellent
       pamixer
       pulseaudio      # wpctl / pactl
+      pavucontrol
 
       # ── File manager ─────────────────────────
       thunar
