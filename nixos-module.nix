@@ -19,5 +19,10 @@ in
         "default.configured.audio.source" = "mic_chain_out";
       };
     };
+
+    # Secret Service provider for Electron apps (Element, Slack, …) and system tools.
+    # PAM integration unlocks the keyring automatically on login via the display manager.
+    services.gnome.gnome-keyring.enable = true;
+    security.pam.services.sddm.enableGnomeKeyring = true;
   };
 }

@@ -460,6 +460,19 @@ in
         ''
     );
 
+    # ── Element: force gnome-libsecret so the keyring is found on Hyprland ──────
+    # Electron does not auto-detect the Secret Service on non-GNOME desktops;
+    # overriding the desktop entry is more reliable than electron-flags.conf.
+    xdg.desktopEntries.element-desktop = mkIf (cfg.comms.app == "element") {
+      name        = "Element";
+      genericName = "Matrix Client";
+      comment     = "Feature-rich client for Matrix.org";
+      exec        = "element-desktop --password-store=gnome-libsecret %u";
+      icon        = "element";
+      categories  = [ "Network" "InstantMessaging" "Chat" ];
+      mimeType    = [ "x-scheme-handler/element" "x-scheme-handler/io.element.desktop" ];
+    };
+
     # ── Caelestia shell + CLI ─────────────────────────────────────────────────
     programs.caelestia = {
       enable  = true;
