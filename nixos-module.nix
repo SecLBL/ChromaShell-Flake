@@ -29,6 +29,15 @@ in
     # The user still needs to be in the i2c group (set in NixOS-Configuration_2).
     hardware.i2c.enable = true;
 
+    # gpu-screen-recorder's kms server needs cap_sys_admin to capture via KMS.
+    # Without this, it prompts for polkit which fails when launched without a terminal.
+    security.wrappers.gsr-kms-server = {
+      owner        = "root";
+      group        = "root";
+      capabilities = "cap_sys_admin+ep";
+      source       = "${pkgs.gpu-screen-recorder}/bin/gsr-kms-server";
+    };
+
     # Patch element-desktop's app.asar so it injects ~/.config/chromashell/element.css
     # into every renderer window. The CSS is written by chromashell-posthook.sh on each
     # theme change. This overlay must live here (NixOS level) because useGlobalPkgs=true
