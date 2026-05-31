@@ -22,6 +22,27 @@ in
       };
     };
 
+    # Prevent WirePlumber from auto-linking jalv nodes to the default sink/source.
+    # start-jalv.sh wires them explicitly via pw-link after all nodes are up.
+    services.pipewire.wireplumber.extraConfig."20-chromashell-jalv" = {
+      "monitor.rules" = [
+        {
+          matches = [
+            { "node.name" = "mic-gate"; }
+            { "node.name" = "mic-nr"; }
+            { "node.name" = "mic-comp"; }
+            { "node.name" = "chat-nr"; }
+            { "node.name" = "chat-comp"; }
+          ];
+          actions = {
+            "update-props" = {
+              "node.autoconnect" = false;
+            };
+          };
+        }
+      ];
+    };
+
     # Secret Service provider for Electron apps (Element, Slack, …) and system tools.
     # PAM integration unlocks the keyring automatically on login via the display manager.
     services.gnome.gnome-keyring.enable = true;
