@@ -13,6 +13,8 @@ in
       withUWSM = true;
     };
 
+    services.pipewire.extraLv2Packages = with pkgs; [ lsp-plugins rnnoise-plugin noise-repellent ];
+
     services.pipewire.wireplumber.extraConfig."10-chromashell-defaults" = {
       "wireplumber.settings" = {
         "default.configured.audio.sink"   = "MixBus.input";
