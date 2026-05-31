@@ -492,10 +492,10 @@ in
               in
                 "bash ${inputs.dotfiles}/extra/chromashell-posthook.sh${browserArg}${commsArg}";
           };
-        } // lib.optionalAttrs (cfg.music.app != null) {
-          toggles.music = musicDefs.${cfg.music.app}.caeConfig;
-        } // lib.optionalAttrs (cfg.comms.app != null) {
-          toggles.communication = commsDefs.${cfg.comms.app}.caeConfig;
+        } // lib.optionalAttrs (cfg.music.app != null || cfg.comms.app != null) {
+          toggles =
+            lib.optionalAttrs (cfg.music.app != null) { music = musicDefs.${cfg.music.app}.caeConfig; }
+            // lib.optionalAttrs (cfg.comms.app != null) { communication = commsDefs.${cfg.comms.app}.caeConfig; };
         };
       };
     };
