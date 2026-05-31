@@ -11,12 +11,12 @@
     };
 
     caelestia-shell = {
-      url = "git+file:///home/lbl/System_Maintenance/caelestia/shell";
+      url = "git+file:///home/lbl/System_Maintenance/ChromaShell/shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     caelestia-cli = {
-      url = "git+file:///home/lbl/System_Maintenance/caelestia/cli";
+      url = "git+file:///home/lbl/System_Maintenance/ChromaShell/cli";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
