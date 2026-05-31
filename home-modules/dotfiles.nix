@@ -109,6 +109,7 @@ in
         fi
       }
 
+      mkdir -p "$HOME/.config/chromashell/audio/runtime"
       mkdir -p "$HOME/.config/chromashell/theming/runtime"
 
       # Per-machine Hyprland config (monitors, workspaces)
