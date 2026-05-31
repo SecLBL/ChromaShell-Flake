@@ -15,6 +15,7 @@ in
       ".lv2/rnnoise_mono.lv2".source    = "${pkgs.rnnoise-plugin}/lib/lv2/rnnoise_mono.lv2";
       ".lv2/rnnoise_stereo.lv2".source  = "${pkgs.rnnoise-plugin}/lib/lv2/rnnoise_stereo.lv2";
       ".lv2/nrepellent.lv2".source      = "${pkgs.noise-repellent}/lib/lv2/nrepellent.lv2";
+      ".lv2/fil4.lv2".source            = "${pkgs.x42-plugins}/lib/lv2/fil4.lv2";
     };
 
   };
