@@ -361,7 +361,7 @@ in
         After       = [ "default.target" ];
       };
       Service = {
-        ExecStart  = "${pkgs.python3}/bin/python3 ${inputs.dotfiles}/extra/chromashell-sse-server.py";
+        ExecStart  = "${pkgs.python3}/bin/python3 ${inputs.dotfiles}/dots/.config/chromashell/theming/sse-server.py";
         Environment = [ "PATH=${pkgs.inotify-tools}/bin" ];
         Restart    = "on-failure";
         RestartSec = "2s";
@@ -422,10 +422,10 @@ in
             dir="$base/$rel"
             ${pkgs.coreutils}/bin/mkdir -p "$dir/chrome" "$dir/extensions"
             if [ "$zen_colors" = "true" ]; then
-              ${pkgs.coreutils}/bin/mkdir -p "$HOME/.config/chromashell"
-              [ -f "$HOME/.config/chromashell/zen-colors.css" ] || \
-                printf ':root {}\n' > "$HOME/.config/chromashell/zen-colors.css"
-              ${pkgs.coreutils}/bin/ln -sf "$HOME/.config/chromashell/zen-colors.css" \
+              ${pkgs.coreutils}/bin/mkdir -p "$HOME/.config/chromashell/theming/runtime"
+              [ -f "$HOME/.config/chromashell/theming/runtime/zen-colors.css" ] || \
+                printf ':root {}\n' > "$HOME/.config/chromashell/theming/runtime/zen-colors.css"
+              ${pkgs.coreutils}/bin/ln -sf "$HOME/.config/chromashell/theming/runtime/zen-colors.css" \
                 "$dir/chrome/zen-colors.css"
               ${pkgs.coreutils}/bin/rm -f "$dir/chrome/userChrome.css"
               { printf '@import url("zen-colors.css");\n\n'; ${pkgs.coreutils}/bin/cat "$userchrome_src"; } \
@@ -490,7 +490,7 @@ in
                 browserArg = lib.optionalString (cfg.browser.app != null) " --browser ${cfg.browser.app}";
                 commsArg   = lib.optionalString (cfg.comms.app   != null) " --comms ${cfg.comms.app}";
               in
-                "bash ${inputs.dotfiles}/extra/chromashell-posthook.sh${browserArg}${commsArg}";
+                "bash ${inputs.dotfiles}/dots/.config/chromashell/theming/posthook.sh${browserArg}${commsArg}";
           };
         } // lib.optionalAttrs (cfg.music.app != null || cfg.comms.app != null) {
           toggles =

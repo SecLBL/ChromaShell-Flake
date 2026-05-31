@@ -37,6 +37,14 @@ in
         chmod -R +x $out
       '';
 
+      # ── ChromaShell runtime directory ──────────────────────────────────
+      "chromashell/audio".source = pkgs.runCommand "chromashell-audio-scripts" {} ''
+        cp -r ${dots}/chromashell/audio $out
+        chmod -R +x $out
+      '';
+      "chromashell/theming/posthook.sh" = { source = "${dots}/chromashell/theming/posthook.sh"; executable = true; };
+      "chromashell/theming/sse-server.py".source = "${dots}/chromashell/theming/sse-server.py";
+
       # ── Pipewire virtual nodes ──────────────────────────────────────────
       "pipewire/pipewire.conf.d/loopback.conf".source       = "${dots}/pipewire/pipewire.conf.d/loopback.conf";
       "pipewire/pipewire.conf.d/filter-chain-mic.conf".source  = "${dots}/pipewire/pipewire.conf.d/filter-chain-mic.conf";
@@ -100,6 +108,8 @@ in
           printf '%s\n' "$content" > "$file"
         fi
       }
+
+      mkdir -p "$HOME/.config/chromashell/theming/runtime"
 
       # Per-machine Hyprland config (monitors, workspaces)
       create_stub "$HOME/.config/hypr/monitors.lua" \

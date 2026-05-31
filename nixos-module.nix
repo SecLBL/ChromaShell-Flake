@@ -38,7 +38,7 @@ in
       source       = "${pkgs.gpu-screen-recorder}/bin/gsr-kms-server";
     };
 
-    # Patch element-desktop's app.asar so it injects ~/.config/chromashell/element.css
+    # Patch element-desktop's app.asar so it injects ~/.config/chromashell/theming/runtime/element.css
     # into every renderer window. The CSS is written by chromashell-posthook.sh on each
     # theme change. This overlay must live here (NixOS level) because useGlobalPkgs=true
     # in HM means HM nixpkgs.overlays are ignored.
@@ -51,9 +51,9 @@ in
             ${prev.asar}/bin/asar extract "$out/share/element/app.asar" "$tmpdir"
             cat >> "$tmpdir/lib/electron-main.js" << 'CHROMASHELL_EOF'
 
-// ChromaShell: inject ~/.config/chromashell/element.css on every page load
+// ChromaShell: inject ~/.config/chromashell/theming/runtime/element.css on every page load
 {
-  const _cssPath = path.join(process.env["XDG_CONFIG_HOME"] ?? path.join(app.getPath("home"), ".config"), "chromashell", "element.css");
+  const _cssPath = path.join(process.env["XDG_CONFIG_HOME"] ?? path.join(app.getPath("home"), ".config"), "chromashell", "theming", "runtime", "element.css");
   app.on("browser-window-created", (_, win) => {
     win.webContents.on("did-finish-load", () => {
       try {
