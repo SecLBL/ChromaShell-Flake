@@ -13,7 +13,7 @@ in
       withUWSM = true;
     };
 
-    services.pipewire.extraLv2Packages = with pkgs; [ lsp-plugins rnnoise-plugin noise-repellent ];
+    services.pipewire.extraLv2Packages = with pkgs; [ lsp-plugins rnnoise-plugin noise-repellent x42-plugins ];
 
     services.pipewire.wireplumber.extraConfig."10-chromashell-defaults" = {
       "wireplumber.settings" = {
@@ -33,6 +33,7 @@ in
             { "node.name" = "mic-comp"; }
             { "node.name" = "chat-nr"; }
             { "node.name" = "chat-comp"; }
+            { "node.name" = "general-eq"; }
           ];
           actions = {
             "update-props" = {

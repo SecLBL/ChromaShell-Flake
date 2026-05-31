@@ -49,11 +49,13 @@ in
       "chromashell/theming/sse-server.py".source = "${dots}/chromashell/theming/sse-server.py";
 
       # ── Pipewire virtual nodes ──────────────────────────────────────────
-      "pipewire/pipewire.conf.d/loopback.conf".source              = "${dots}/pipewire/pipewire.conf.d/loopback.conf";
-      "pipewire/pipewire.conf.d/filter-chain-mic-in.conf".source  = "${dots}/pipewire/pipewire.conf.d/filter-chain-mic-in.conf";
-      "pipewire/pipewire.conf.d/filter-chain-mic-out.conf".source = "${dots}/pipewire/pipewire.conf.d/filter-chain-mic-out.conf";
-      "pipewire/pipewire.conf.d/filter-chain-chat-in.conf".source  = "${dots}/pipewire/pipewire.conf.d/filter-chain-chat-in.conf";
-      "pipewire/pipewire.conf.d/filter-chain-chat-out.conf".source = "${dots}/pipewire/pipewire.conf.d/filter-chain-chat-out.conf";
+      "pipewire/pipewire.conf.d/loopback.conf".source                  = "${dots}/pipewire/pipewire.conf.d/loopback.conf";
+      "pipewire/pipewire.conf.d/filter-chain-general-in.conf".source  = "${dots}/pipewire/pipewire.conf.d/filter-chain-general-in.conf";
+      "pipewire/pipewire.conf.d/filter-chain-general-out.conf".source = "${dots}/pipewire/pipewire.conf.d/filter-chain-general-out.conf";
+      "pipewire/pipewire.conf.d/filter-chain-mic-in.conf".source      = "${dots}/pipewire/pipewire.conf.d/filter-chain-mic-in.conf";
+      "pipewire/pipewire.conf.d/filter-chain-mic-out.conf".source     = "${dots}/pipewire/pipewire.conf.d/filter-chain-mic-out.conf";
+      "pipewire/pipewire.conf.d/filter-chain-chat-in.conf".source     = "${dots}/pipewire/pipewire.conf.d/filter-chain-chat-in.conf";
+      "pipewire/pipewire.conf.d/filter-chain-chat-out.conf".source    = "${dots}/pipewire/pipewire.conf.d/filter-chain-chat-out.conf";
 
       # ── Kitty ──────────────────────────────────────────────────────────
       "kitty".source = "${dots}/kitty";
