@@ -29,6 +29,7 @@ in
 
       # ── Audio ────────────────────────────────
       jalv
+      pipewire.jack   # pw-jack wrapper — routes jalv through PipeWire JACK compat
       lsp-plugins
       rnnoise-plugin
       noise-repellent
