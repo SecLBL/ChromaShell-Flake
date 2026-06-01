@@ -473,6 +473,24 @@ in
       mimeType    = [ "x-scheme-handler/element" "x-scheme-handler/io.element.desktop" ];
     };
 
+    # On NixOS, XKB rules live under /run/current-system/sw, not /usr/share.
+    # The QML already checks this env var before falling back to the hardcoded path.
+    systemd.user.services.caelestia.environment = {
+      CAELESTIA_XKB_RULES_PATH = "/run/current-system/sw/share/X11/xkb/rules/base.lst";
+    };
+
+    # XDG Desktop Portal looks in XDG_DATA_HOME/applications for the app ID desktop file.
+    # quickshell's desktop file is in the nix store but not linked into the user profile,
+    # so the portal can't find it and refuses to register the app.
+    xdg.dataFile."applications/org.quickshell.desktop".text = ''
+      [Desktop Entry]
+      Version=1.5
+      Type=Application
+      NoDisplay=true
+      Name=Quickshell
+      Icon=org.quickshell
+    '';
+
     # ── Caelestia shell + CLI ─────────────────────────────────────────────────
     programs.caelestia = {
       enable  = true;
