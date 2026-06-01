@@ -51,6 +51,7 @@ in
       btop
       ddcutil
       fastfetch
+      eza
 
       # ── System / scripting ───────────────────
       inotify-tools
