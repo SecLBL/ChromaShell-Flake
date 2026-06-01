@@ -5,6 +5,15 @@ inputs:
 let
   inherit (lib) mkIf;
   cfg = config.programs.chromashell;
+
+  jalvPath = lib.makeBinPath [
+    pkgs.jalv
+    pkgs.pipewire
+    pkgs.pipewire.jack
+    pkgs.jq
+    pkgs.coreutils
+    pkgs.bash
+  ];
 in
 {
   config = mkIf (cfg.enable && cfg.audio.enable) {
@@ -16,6 +25,26 @@ in
       ".lv2/rnnoise_stereo.lv2".source  = "${pkgs.rnnoise-plugin}/lib/lv2/rnnoise_stereo.lv2";
       ".lv2/nrepellent.lv2".source      = "${pkgs.noise-repellent}/lib/lv2/nrepellent.lv2";
       ".lv2/fil4.lv2".source            = "${pkgs.x42-plugins}/lib/lv2/fil4.lv2";
+    };
+
+    # jalv plugin chain — starts with WirePlumber, restarts on PipeWire crash
+    systemd.user.services.chromashell-jalv = {
+      Unit = {
+        Description = "ChromaShell jalv LV2 audio plugin chain";
+        After    = [ "wireplumber.service" "pipewire.service" ];
+        PartOf   = [ "wireplumber.service" ];
+        Requires = [ "wireplumber.service" "pipewire.service" ];
+      };
+      Service = {
+        Type             = "oneshot";
+        RemainAfterExit  = true;
+        ExecStart        = "${config.xdg.configHome}/chromashell/audio/start-jalv.sh";
+        ExecStop         = "${pkgs.bash}/bin/bash -c '${pkgs.procps}/bin/pkill -f \"jalv -n\" || true; rm -f /tmp/jalv-*'";
+        Environment      = [ "PATH=${jalvPath}" ];
+        StandardOutput   = "journal";
+        StandardError    = "journal";
+      };
+      Install.WantedBy = [ "wireplumber.service" ];
     };
 
   };
