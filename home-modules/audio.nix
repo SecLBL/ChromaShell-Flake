@@ -36,13 +36,13 @@ in
         Requires = [ "wireplumber.service" "pipewire.service" ];
       };
       Service = {
-        Type             = "oneshot";
-        RemainAfterExit  = true;
-        ExecStart        = "${config.xdg.configHome}/chromashell/audio/start-jalv.sh";
-        ExecStop         = "${pkgs.bash}/bin/bash -c '${pkgs.procps}/bin/pkill -f \"jalv -n\" || true; rm -f /tmp/jalv-*'";
-        Environment      = [ "PATH=${jalvPath}" ];
-        StandardOutput   = "journal";
-        StandardError    = "journal";
+        Type        = "simple";
+        ExecStart   = "${config.xdg.configHome}/chromashell/audio/start-jalv.sh";
+        Restart     = "on-failure";
+        RestartSec  = "3s";
+        Environment = [ "PATH=${jalvPath}" ];
+        StandardOutput = "journal";
+        StandardError  = "journal";
       };
       Install.WantedBy = [ "wireplumber.service" ];
     };
