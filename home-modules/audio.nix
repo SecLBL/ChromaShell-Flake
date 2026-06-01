@@ -12,6 +12,7 @@ let
     pkgs.pipewire.jack
     pkgs.jq
     pkgs.coreutils
+    pkgs.gnugrep
     pkgs.bash
   ];
 in
