@@ -49,6 +49,8 @@ in
     services.gnome.gnome-keyring.enable = true;
     security.pam.services.sddm.enableGnomeKeyring = true;
 
+    services.power-profiles-daemon.enable = true;
+
     # i2c-dev module + udev rules so ddcutil can control monitor brightness via DDC/CI.
     # The user still needs to be in the i2c group (set in NixOS-Configuration_2).
     hardware.i2c.enable = true;
