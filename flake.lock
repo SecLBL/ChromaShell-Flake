@@ -79,11 +79,11 @@
         "quickshell": "quickshell_2"
       },
       "locked": {
-        "lastModified": 1780261125,
-        "narHash": "sha256-TMhBDelpf26CUb6zBvoOj8Phl7HD1ZCxAimqSUEesgA=",
+        "lastModified": 1780313294,
+        "narHash": "sha256-d1jyT9RSHI8waJRf5NhVQu/P38wsaoj3bB0L3cwCg+k=",
         "ref": "refs/heads/main",
-        "rev": "ab29e1e92da71bd1f12bbf79f3b211a36d97a869",
-        "revCount": 2175,
+        "rev": "e3dc579d2bce504cc44bd8a147e3b3ae1a4875e1",
+        "revCount": 2177,
         "type": "git",
         "url": "file:///home/lbl/System_Maintenance/ChromaShell/shell"
       },
