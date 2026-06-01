@@ -475,9 +475,13 @@ in
 
     # On NixOS, XKB rules live under /run/current-system/sw, not /usr/share.
     # The QML already checks this env var before falling back to the hardcoded path.
-    systemd.user.services.caelestia.environment = {
-      CAELESTIA_XKB_RULES_PATH = "/run/current-system/sw/share/X11/xkb/rules/base.lst";
-    };
+    # Drop-in instead of systemd.user.services.caelestia.environment — the caelestia-shell
+    # module uses the raw Service={} format, so .environment generates a spurious [environment]
+    # section that systemd rejects.
+    xdg.configFile."systemd/user/caelestia.service.d/xkb-path.conf".text = ''
+      [Service]
+      Environment="CAELESTIA_XKB_RULES_PATH=/run/current-system/sw/share/X11/xkb/rules/base.lst"
+    '';
 
     # XDG Desktop Portal looks in XDG_DATA_HOME/applications for the app ID desktop file.
     # quickshell's desktop file is in the nix store but not linked into the user profile,
