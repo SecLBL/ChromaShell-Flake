@@ -50,7 +50,7 @@ let
   } ''
     mkdir -p $out
     cd ${inputs.dotfiles}/extra/chromafox
-    zip -r $out/chromafox@chromashell.xpi manifest.json background.js
+    zip -r $out/chromafox@chromashell.xpi manifest.json background.js content.js
   '';
 
   # Editor command used in the Hyprland keybind (Super+C).
