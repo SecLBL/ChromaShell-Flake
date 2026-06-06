@@ -377,6 +377,14 @@ in
         userChrome = builtins.readFile "${inputs.dotfiles}/dots/.config/firefox/userChrome.css";
         settings."toolkit.legacyUserProfileCustomizations.stylesheets" = true;
       };
+      # Firefox Release rejects unsigned sideloaded extensions; enterprise policies bypass this.
+      policies.ExtensionSettings = {
+        "chromafox@chromashell" = {
+          installation_mode = "force_installed";
+          install_url =
+            "file://${config.home.homeDirectory}/.local/share/chromafox/chromafox@chromashell.xpi";
+        };
+      };
     };
 
     # ── Browser: LibreWolf (manage = true — HM owns install + profile) ──────
@@ -392,10 +400,13 @@ in
       };
     };
 
-    # ── Browser extension (gecko, manage = true) — XPI into HM "default" profile ─
+    # ── Browser extension — stable XPI path + profile sideload where unsigned is allowed ─
+    # Firefox uses enterprise policies (install_url) → needs XPI at a stable home path.
+    # LibreWolf disables signature checks → sideload into profile extensions/ still works.
     home.file =
-      lib.optionalAttrs (cfg.browser.manage && cfg.browser.app == "firefox") {
-        ".mozilla/firefox/default/extensions/chromafox@chromashell.xpi".source =
+      lib.optionalAttrs (cfg.browser.app != null &&
+                         browserDefs.${cfg.browser.app}.type == "gecko") {
+        ".local/share/chromafox/chromafox@chromashell.xpi".source =
           "${chromaFoxExt}/chromafox@chromashell.xpi";
       } //
       lib.optionalAttrs (cfg.browser.manage && cfg.browser.app == "librewolf") {
@@ -433,8 +444,14 @@ in
             else
               ${pkgs.coreutils}/bin/ln -sf "$userchrome_src" "$dir/chrome/userChrome.css"
             fi
-            ${pkgs.coreutils}/bin/cp -f "${chromaFoxExt}/chromafox@chromashell.xpi" \
-              "$dir/extensions/chromafox@chromashell.xpi"
+            if [ "$allow_unsigned" = "false" ]; then
+              ${pkgs.coreutils}/bin/mkdir -p "$base/policies"
+              printf '{"policies":{"ExtensionSettings":{"chromafox@chromashell":{"installation_mode":"force_installed","install_url":"file://%s/.local/share/chromafox/chromafox@chromashell.xpi"}}}}' \
+                "$HOME" > "$base/policies/policies.json"
+            else
+              ${pkgs.coreutils}/bin/cp -f "${chromaFoxExt}/chromafox@chromashell.xpi" \
+                "$dir/extensions/chromafox@chromashell.xpi"
+            fi
             ${pkgs.gnugrep}/bin/grep -q "legacyUserProfileCustomizations" "$dir/user.js" 2>/dev/null || \
               printf 'user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);\n' \
                 >> "$dir/user.js"
