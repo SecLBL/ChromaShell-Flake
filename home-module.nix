@@ -381,8 +381,7 @@ in
       policies.ExtensionSettings = {
         "chromafox@chromashell" = {
           installation_mode = "force_installed";
-          install_url =
-            "file://${config.home.homeDirectory}/.local/share/chromafox/chromafox@chromashell.xpi";
+          install_url = "http://127.0.0.1:29847/chromafox.xpi";
         };
       };
     };
@@ -446,8 +445,8 @@ in
             fi
             if [ "$allow_unsigned" = "false" ]; then
               ${pkgs.coreutils}/bin/mkdir -p "$base/policies"
-              printf '{"policies":{"ExtensionSettings":{"chromafox@chromashell":{"installation_mode":"force_installed","install_url":"file://%s/.local/share/chromafox/chromafox@chromashell.xpi"}}}}' \
-                "$HOME" > "$base/policies/policies.json"
+              printf '{"policies":{"ExtensionSettings":{"chromafox@chromashell":{"installation_mode":"force_installed","install_url":"http://127.0.0.1:29847/chromafox.xpi"}}}}' \
+                > "$base/policies/policies.json"
             else
               ${pkgs.coreutils}/bin/cp -f "${chromaFoxExt}/chromafox@chromashell.xpi" \
                 "$dir/extensions/chromafox@chromashell.xpi"
