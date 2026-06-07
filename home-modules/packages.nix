@@ -43,6 +43,7 @@ in
       # ── Theming ──────────────────────────────
       adw-gtk3
       papirus-icon-theme
+      pywal
 
       # ── Caelestia spawn support ──────────────
       app2unit
