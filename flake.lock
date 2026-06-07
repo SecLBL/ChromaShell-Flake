@@ -8,11 +8,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780861138,
-        "narHash": "sha256-b07kQZlHhkZ97Y+O0mrYVwfecV0TMxEi4JfG9NCRVbE=",
+        "lastModified": 1780861535,
+        "narHash": "sha256-FlnHXOu6B9gQAjud6s5t4xDISzF5nCzuVEKcOiyVVrI=",
         "ref": "refs/heads/main",
-        "rev": "6a65190eddd16fe60cd182244fe9a79029c0cdc4",
-        "revCount": 534,
+        "rev": "38c15388c6419fc1e2984f115787e59cc5ac0a79",
+        "revCount": 535,
         "type": "git",
         "url": "file:///home/lbl/System_Maintenance/ChromaShell/cli"
       },
