@@ -73,17 +73,18 @@
     "caelestia-shell_2": {
       "inputs": {
         "caelestia-cli": "caelestia-cli_2",
+        "m3shapes": "m3shapes",
         "nixpkgs": [
           "nixpkgs"
         ],
         "quickshell": "quickshell_2"
       },
       "locked": {
-        "lastModified": 1781018522,
-        "narHash": "sha256-7KDXtZ+Z0bAmEQMjwBd9Y3mRupfPg4ADhBVtYC8YppY=",
+        "lastModified": 1781018934,
+        "narHash": "sha256-pdRiSglUO4Txs2n5dPLA25AnNBVDG5a/eyeaeO0fsGQ=",
         "ref": "refs/heads/merge-upstream",
-        "rev": "b021b6fd3d8eb96cbf3052f179cf27be0040c0ef",
-        "revCount": 2381,
+        "rev": "4b0cf8683bf1b09b6a910b7f32b8474cda0a8cb4",
+        "revCount": 2382,
         "type": "git",
         "url": "file:///home/lbl/System_Maintenance/ChromaShell/shell"
       },
@@ -103,6 +104,22 @@
       "original": {
         "owner": "SecLBL",
         "repo": "ChromaShell",
+        "type": "github"
+      }
+    },
+    "m3shapes": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777812556,
+        "narHash": "sha256-E5nqOucRQBWKuT31AMekmfgMywRdHgSbU86R7t4BKKA=",
+        "owner": "soramanew",
+        "repo": "m3shapes",
+        "rev": "356825d31f16052a782735cce264331cba0cb71b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "soramanew",
+        "repo": "m3shapes",
         "type": "github"
       }
     },
