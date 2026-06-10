@@ -40,23 +40,17 @@ in
       # ── ChromaShell runtime directory ──────────────────────────────────
       # Individual file entries so HM creates audio/ and theming/ as real
       # directories (not store symlinks), allowing runtime/ subdirs inside.
-      "chromashell/audio/start-jalv.sh"      = { source = "${dots}/chromashell/audio/start-jalv.sh";      executable = true; };
+      "chromashell/audio/start-audio.sh"    = { source = "${dots}/chromashell/audio/start-audio.sh";    executable = true; };
       "chromashell/audio/audio-param.sh"    = { source = "${dots}/chromashell/audio/audio-param.sh";    executable = true; };
       "chromashell/audio/audio-route.sh"    = { source = "${dots}/chromashell/audio/audio-route.sh";    executable = true; };
-      "chromashell/audio/audio-nr-bypass.sh"= { source = "${dots}/chromashell/audio/audio-nr-bypass.sh";executable = true; };
       "chromashell/audio/volume-control.sh" = { source = "${dots}/chromashell/audio/volume-control.sh"; executable = true; };
-      "chromashell/audio/audio.json.default".source = "${dots}/chromashell/audio/audio.json.default";
+      "chromashell/audio/chains.conf".source         = "${dots}/chromashell/audio/chains.conf";
+      "chromashell/audio/audio.json.default".source  = "${dots}/chromashell/audio/audio.json.default";
       "chromashell/theming/posthook.sh"    = { source = "${dots}/chromashell/theming/posthook.sh"; executable = true; };
       "chromashell/theming/sse-server.py".source = "${dots}/chromashell/theming/sse-server.py";
 
-      # ── Pipewire virtual nodes ──────────────────────────────────────────
-      "pipewire/pipewire.conf.d/loopback.conf".source                  = "${dots}/pipewire/pipewire.conf.d/loopback.conf";
-      "pipewire/pipewire.conf.d/filter-chain-general-in.conf".source  = "${dots}/pipewire/pipewire.conf.d/filter-chain-general-in.conf";
-      "pipewire/pipewire.conf.d/filter-chain-general-out.conf".source = "${dots}/pipewire/pipewire.conf.d/filter-chain-general-out.conf";
-      "pipewire/pipewire.conf.d/filter-chain-mic-in.conf".source      = "${dots}/pipewire/pipewire.conf.d/filter-chain-mic-in.conf";
-      "pipewire/pipewire.conf.d/filter-chain-mic-out.conf".source     = "${dots}/pipewire/pipewire.conf.d/filter-chain-mic-out.conf";
-      "pipewire/pipewire.conf.d/filter-chain-chat-in.conf".source     = "${dots}/pipewire/pipewire.conf.d/filter-chain-chat-in.conf";
-      "pipewire/pipewire.conf.d/filter-chain-chat-out.conf".source    = "${dots}/pipewire/pipewire.conf.d/filter-chain-chat-out.conf";
+      # ── Pipewire virtual nodes (chains live in chromashell-audio.service) ──
+      "pipewire/pipewire.conf.d/loopback.conf".source = "${dots}/pipewire/pipewire.conf.d/loopback.conf";
 
       # ── Kitty ──────────────────────────────────────────────────────────
       "kitty".source = "${dots}/kitty";

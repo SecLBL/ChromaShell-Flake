@@ -13,35 +13,11 @@ in
       withUWSM = true;
     };
 
-    services.pipewire.extraLv2Packages = with pkgs; [ lsp-plugins rnnoise-plugin noise-repellent x42-plugins ];
-
     services.pipewire.wireplumber.extraConfig."10-chromashell-defaults" = {
       "wireplumber.settings" = {
         "default.configured.audio.sink"   = "MixBus.input";
         "default.configured.audio.source" = "mic_chain_out";
       };
-    };
-
-    # Prevent WirePlumber from auto-linking jalv nodes to the default sink/source.
-    # start-jalv.sh wires them explicitly via pw-link after all nodes are up.
-    services.pipewire.wireplumber.extraConfig."20-chromashell-jalv" = {
-      "monitor.rules" = [
-        {
-          matches = [
-            { "node.name" = "mic-gate"; }
-            { "node.name" = "mic-nr"; }
-            { "node.name" = "mic-comp"; }
-            { "node.name" = "chat-nr"; }
-            { "node.name" = "chat-comp"; }
-            { "node.name" = "general-eq"; }
-          ];
-          actions = {
-            "update-props" = {
-              "node.autoconnect" = false;
-            };
-          };
-        }
-      ];
     };
 
     # Secret Service provider for Electron apps (Element, Slack, …) and system tools.
