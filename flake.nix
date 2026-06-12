@@ -9,7 +9,7 @@
       url = "github:SecLBL/ChromaShell";
       flake = false;
     };
-
+     
     caelestia-shell = {
       url = "git+file:///home/lbl/System_Maintenance/ChromaShell/shell";
       inputs.nixpkgs.follows = "nixpkgs";
