@@ -45,6 +45,7 @@ in
       adw-gtk3
       papirus-icon-theme
       pywal
+      qtengine        # Qt platform theme for QT_QPA_PLATFORMTHEME=qtengine (caelestia default; provides Qt icon theme)
 
       # ── Caelestia spawn support ──────────────
       app2unit
