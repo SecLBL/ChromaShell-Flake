@@ -1,24 +1,49 @@
 { config, lib, pkgs, ... }:
 
 let
-  inherit (lib) mkEnableOption mkIf;
+  inherit (lib) mkEnableOption mkOption mkIf mkDefault types;
   cfg = config.programs.chromashell-system;
 in
 {
-  options.programs.chromashell-system.enable = mkEnableOption "ChromaShell system-level configuration";
+  options.programs.chromashell-system = {
+    enable = mkEnableOption "ChromaShell system-level configuration";
 
-  config = mkIf cfg.enable {
-    programs.hyprland = {
-      enable   = true;
-      withUWSM = true;
+    hyprland.enable = mkOption {
+      type    = types.bool;
+      default = true;
+      description = ''
+        Enable Hyprland (with UWSM) and the Hyprland XDG desktop portal.
+        Set to false to provide your own programs.hyprland and xdg.portal config.
+      '';
     };
 
-    services.pipewire.wireplumber.extraConfig."10-chromashell-defaults" = {
-      "wireplumber.settings" = {
-        "default.configured.audio.sink"   = "MixBus.input";
-        "default.configured.audio.source" = "mic_chain_out";
-      };
+    desktop.enable = mkOption {
+      type    = types.bool;
+      default = true;
+      description = ''
+        Enable the caelestia-shell runtime prerequisites: geoclue2 (QtPositioning),
+        upower (battery status) and dconf (dark/light mode detection).
+        Set to false to manage these services yourself.
+      '';
     };
+
+    audio.enable = mkOption {
+      type    = types.bool;
+      default = true;
+      description = ''
+        Enable the PipeWire stack (with ALSA/Pulse/JACK + WirePlumber), rtkit and
+        the LV2 path that the ChromaShell audio pipeline depends on, plus the
+        WirePlumber default sink/source. Set to false to bring your own PipeWire stack.
+      '';
+    };
+  };
+
+  config = mkIf cfg.enable (lib.mkMerge [
+
+    ##########################################################################
+    # Always on — ChromaShell-authored system bits
+    ##########################################################################
+    {
 
     # Secret Service provider for Electron apps (Element, Slack, …) and system tools.
     # PAM integration unlocks the keyring automatically on login via the display manager.
@@ -73,5 +98,65 @@ CHROMASHELL_EOF
         });
       })
     ];
-  };
+    }
+
+    ##########################################################################
+    # Hyprland + XDG portal  (programs.chromashell-system.hyprland.enable)
+    ##########################################################################
+    (mkIf cfg.hyprland.enable {
+      programs.hyprland = {
+        enable   = mkDefault true;
+        withUWSM = mkDefault true;
+      };
+
+      # XDG portals for Hyprland (screensharing, file picker, …).
+      xdg.portal = {
+        enable = mkDefault true;
+        extraPortals = with pkgs; [
+          xdg-desktop-portal-hyprland
+          kdePackages.xdg-desktop-portal-kde
+        ];
+      };
+
+      # Force Wayland in Electron/Chromium apps.
+      environment.sessionVariables.NIXOS_OZONE_WL = mkDefault "1";
+    })
+
+    ##########################################################################
+    # caelestia-shell prerequisites  (programs.chromashell-system.desktop.enable)
+    ##########################################################################
+    (mkIf cfg.desktop.enable {
+      services.geoclue2.enable = mkDefault true;  # QtPositioning (night light / location)
+      services.upower.enable   = mkDefault true;  # battery status
+      programs.dconf.enable    = mkDefault true;  # dark/light mode detection
+    })
+
+    ##########################################################################
+    # Audio stack  (programs.chromashell-system.audio.enable)
+    ##########################################################################
+    (mkIf cfg.audio.enable {
+      security.rtkit.enable = mkDefault true;
+      services.pipewire = {
+        enable            = mkDefault true;
+        alsa.enable       = mkDefault true;
+        alsa.support32Bit = mkDefault true;
+        pulse.enable      = mkDefault true;
+        jack.enable       = mkDefault true;
+        wireplumber.enable = mkDefault true;
+
+        # Default sink/source for the ChromaShell audio chains.
+        wireplumber.extraConfig."10-chromashell-defaults" = {
+          "wireplumber.settings" = {
+            "default.configured.audio.sink"   = "MixBus.input";
+            "default.configured.audio.source" = "mic_chain_out";
+          };
+        };
+      };
+
+      # LV2 bundles installed by the HM audio module land under ~/.lv2; the system
+      # also links /lib/lv2 so host tools (jalv/lv2ls) find them on PATH.
+      environment.pathsToLink = [ "/lib/lv2" ];
+    })
+
+  ]);
 }
