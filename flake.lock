@@ -10,15 +10,15 @@
       "locked": {
         "lastModified": 1780862682,
         "narHash": "sha256-WLdlZAYzO+2m52YV+MHLy640QyImh2S+pGSKVcUT9Oo=",
-        "ref": "refs/heads/main",
-        "rev": "c46288fad6ded308c8b1ef76d034b5cedf2455dc",
-        "revCount": 538,
-        "type": "git",
-        "url": "file:///home/lbl/System_Maintenance/ChromaShell/cli"
+        "owner": "SecLBL",
+        "repo": "CS-cli",
+        "rev": "b9b5ad1f085b78aa7e59a1640025718bc613976b",
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "file:///home/lbl/System_Maintenance/ChromaShell/cli"
+        "owner": "SecLBL",
+        "repo": "CS-cli",
+        "type": "github"
       }
     },
     "caelestia-cli_2": {
@@ -82,24 +82,26 @@
       "locked": {
         "lastModified": 1781312543,
         "narHash": "sha256-Rrd1ypTTYvpm2ObIfqcINipflB5ND5FN7/YPpTZQwKw=",
-        "ref": "refs/heads/merge-upstream",
-        "rev": "956147e3cc8a7967d91c7b916cddabbe45ca6288",
-        "revCount": 2517,
-        "type": "git",
-        "url": "file:///home/lbl/System_Maintenance/ChromaShell/shell"
+        "owner": "SecLBL",
+        "repo": "CS-shell",
+        "rev": "87a69c85790daa5e78a2b3bad99562aa543f08e3",
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "file:///home/lbl/System_Maintenance/ChromaShell/shell"
+        "owner": "SecLBL",
+        "repo": "CS-shell",
+        "type": "github"
       }
     },
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1780233375,
-        "narHash": "sha256-Zc1kY3UUTNyqrFzKMtDQPaFGMUB7Ewy+A1eRX0jVQsc=",
-        "path": "/home/lbl/System_Maintenance/ChromaShell",
-        "type": "path"
+        "lastModified": 1781374730,
+        "narHash": "sha256-0pgY4mebeJN6ifCMKGKmi+v8VZbc5RbW50AG/08XmTw=",
+        "owner": "SecLBL",
+        "repo": "ChromaShell",
+        "rev": "a37c00efd7bf67f21b8fdf5e20689407f29dce38",
+        "type": "github"
       },
       "original": {
         "owner": "SecLBL",

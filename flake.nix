@@ -4,19 +4,19 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # Dotfiles — overridden to local path during development via NixOS-Configuration_2
+    # Dotfiles — can be overridden to a local path during development via inputs.dotfiles.follows
     dotfiles = {
       url = "github:SecLBL/ChromaShell";
       flake = false;
     };
-     
+
     caelestia-shell = {
-      url = "git+file:///home/lbl/System_Maintenance/ChromaShell/shell";
+      url = "github:SecLBL/CS-shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     caelestia-cli = {
-      url = "git+file:///home/lbl/System_Maintenance/ChromaShell/cli";
+      url = "github:SecLBL/CS-cli";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
