@@ -144,5 +144,23 @@ hl.monitor({ output=\"\", mode=\"preferred\", position=\"auto\", scale=1 })"
       create_stub "$HOME/.config/hypr/custom/variables.lua"   "-- Custom variable overrides (loaded before keybindings)\n-- local v = require(\"config.variables\"); v.terminal = \"wezterm\""
       create_stub "$HOME/.config/hypr/custom/settings.lua"    "-- Custom settings (hl.config calls merge with existing values)\n-- hl.config({ decoration = { rounding = 10 } })"
     '';
+
+    # Seed the shell's "default apps" (general.apps) into the runtime-owned shell.json.
+    # shell.json is written by caelestia-shell itself (Nexus settings UI), so it cannot be
+    # symlinked from the store. We seed each key only if absent (jq //=), making this the single
+    # source of truth that Hyprland (via cs-app) and the shell both read, while keeping runtime
+    # overrides — they survive home-manager switch because we never overwrite an existing value.
+    home.activation.chromashellSeedShellApps = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      cfg="$HOME/.config/caelestia/shell.json"
+      mkdir -p "$(dirname "$cfg")"
+      [ -f "$cfg" ] || printf '{}\n' > "$cfg"
+      tmp="$(mktemp)"
+      ${pkgs.jq}/bin/jq '
+          .general.apps.terminal //= ["kitty"]
+        | .general.apps.explorer //= ["thunar"]
+        | .general.apps.audio    //= ["pavucontrol"]
+        | .general.apps.playback //= ["mpv"]
+      ' "$cfg" > "$tmp" && mv "$tmp" "$cfg"
+    '';
   };
 }

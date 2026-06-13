@@ -36,6 +36,7 @@ in
       pamixer
       pulseaudio      # wpctl / pactl
       pavucontrol
+      mpv             # shell.json general.apps.playback default (recording playback)
 
       # ── File manager ─────────────────────────
       thunar
