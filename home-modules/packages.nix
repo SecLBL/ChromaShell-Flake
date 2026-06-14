@@ -52,6 +52,7 @@ in
 
       # ── System monitoring ────────────────────
       btop
+      mission-center  # GUI system monitor — sysmon toggle target
       ddcutil
       fastfetch
       eza
