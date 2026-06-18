@@ -81,8 +81,8 @@ in
       "Code/User/settings.json"        = mkIf (cfg.editor.app == "vscode")   { source = "${dots}/vscode/User/settings.json"; };
       "Code/User/keybindings.json"     = mkIf (cfg.editor.app == "vscode")   { source = "${dots}/vscode/User/keybindings.json"; };
       "code-flags.conf"                = mkIf (cfg.editor.app == "vscode")   { source = "${dots}/vscode/flags.conf"; };
-      "zed/settings.json"              = mkIf (cfg.editor.app == "zed")      { source = "${dots}/zed/settings.json"; };
-      "zed/keymap.json"                = mkIf (cfg.editor.app == "zed")      { source = "${dots}/zed/keymap.json"; };
+      # Zed seeds its config writable via home.activation (see below) — Zed
+      # writes to settings.json at runtime, so it cannot be a store symlink.
       "micro/settings.json"            = mkIf (cfg.editor.app == "micro")    { source = "${dots}/micro/settings.json"; };
 
       # ── Hyprland generated overrides (flake-managed, written to hypr/generated/) ─
@@ -144,6 +144,25 @@ hl.monitor({ output=\"\", mode=\"preferred\", position=\"auto\", scale=1 })"
       create_stub "$HOME/.config/hypr/custom/variables.lua"   "-- Custom variable overrides (loaded before keybindings)\n-- local v = require(\"config.variables\"); v.terminal = \"wezterm\""
       create_stub "$HOME/.config/hypr/custom/settings.lua"    "-- Custom settings (hl.config calls merge with existing values)\n-- hl.config({ decoration = { rounding = 10 } })"
     '';
+
+    # Zed config — seeded writable, never a store symlink. Zed rewrites
+    # settings.json at runtime (UI settings, onboarding, theme selection) and
+    # caelestia-cli writes themes/caelestia.json into the same dir, so the
+    # files must stay writable. Seed-once: copy from the repo only when absent,
+    # then the file belongs to Zed (like shell.json).
+    home.activation.chromashellSeedZed = mkIf (cfg.editor.app == "zed") (
+      lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        seed_zed() {
+          local src="$1" dst="$2"
+          if [ ! -f "$dst" ]; then
+            mkdir -p "$(dirname "$dst")"
+            install -m644 "$src" "$dst"
+          fi
+        }
+        seed_zed "${dots}/zed/settings.json" "$HOME/.config/zed/settings.json"
+        seed_zed "${dots}/zed/keymap.json"   "$HOME/.config/zed/keymap.json"
+      ''
+    );
 
     # Seed the shell's "default apps" (general.apps) into the runtime-owned shell.json.
     # shell.json is written by caelestia-shell itself (Nexus settings UI), so it cannot be
