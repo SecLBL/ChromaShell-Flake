@@ -32,11 +32,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780375472,
-        "narHash": "sha256-Q8RAJoYlakA6B2I5DVcuxzNbhCNU1nnIjqQZYP1KGrM=",
+        "lastModified": 1784343464,
+        "narHash": "sha256-nCbqEHtKdC+K7Nm55s1NtvW8pjMkN/ln9y53DJWnfVY=",
         "owner": "caelestia-dots",
         "repo": "cli",
-        "rev": "d1c8c8fc09738d1b40576e97c274b4a11a2e0ac7",
+        "rev": "0f20487cba585950de850d76e5ced63628453a36",
         "type": "github"
       },
       "original": {
@@ -80,11 +80,11 @@
         "quickshell": "quickshell_2"
       },
       "locked": {
-        "lastModified": 1781312543,
-        "narHash": "sha256-Rrd1ypTTYvpm2ObIfqcINipflB5ND5FN7/YPpTZQwKw=",
+        "lastModified": 1790938957,
+        "narHash": "sha256-htfRKrqlmql9SC7DucmGTlvP1D4p40KM2lnd1E0vQkA=",
         "owner": "SecLBL",
         "repo": "CS-shell",
-        "rev": "87a69c85790daa5e78a2b3bad99562aa543f08e3",
+        "rev": "37a48f31da6a0974488f2616d7e68258a6690d5a",
         "type": "github"
       },
       "original": {
@@ -96,11 +96,11 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1781477081,
-        "narHash": "sha256-2H9STy9NVwN2ly4rcmBhOaLnZ0QCoCXuzq8Q6V1bIi4=",
+        "lastModified": 1790938982,
+        "narHash": "sha256-DexJnNKWyblsfxH4YfBjrPjk+xjtvhSvGpUVHG0xnHw=",
         "owner": "SecLBL",
         "repo": "ChromaShell",
-        "rev": "00e1c202fcf18d3ba300b443d7b828005bea5d51",
+        "rev": "896564c7b898c2a7e4ebfdb316ba7714974e95dc",
         "type": "github"
       },
       "original": {
@@ -112,17 +112,17 @@
     "m3shapes": {
       "flake": false,
       "locked": {
-        "lastModified": 1781001698,
-        "narHash": "sha256-yJ7IFqIbFBhSB5iXQK1/z/l1V8SRhiK2CK+hTVvwW2o=",
+        "lastModified": 1781017666,
+        "narHash": "sha256-kfHyzZaPHgqZML48OA+5JwBOsLdQJ2ci/aGPShvUB4Y=",
         "owner": "soramanew",
         "repo": "m3shapes",
-        "rev": "eb93964ab8583ae21c3a0bb9897f96ef9a1b5377",
+        "rev": "bdc327b29f95394a732baf3c9b19658ba23755b6",
         "type": "github"
       },
       "original": {
         "owner": "soramanew",
         "repo": "m3shapes",
-        "rev": "eb93964ab8583ae21c3a0bb9897f96ef9a1b5377",
+        "rev": "bdc327b29f95394a732baf3c9b19658ba23755b6",
         "type": "github"
       }
     },
@@ -172,11 +172,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780303737,
-        "narHash": "sha256-7HgdJBG4BgAPDyHKKxWtxj7nziqsQo6zQCXtwy+L9fs=",
+        "lastModified": 1783673918,
+        "narHash": "sha256-cFG5vnmjJcZRVCSUaqQLOdwkX6iqF6bY8IvvmBSGSRs=",
         "ref": "refs/heads/master",
-        "rev": "b66495fcc5022681b56b61f928c7acbe910e722c",
-        "revCount": 821,
+        "rev": "4df562dfb2475a9057f0f33a8db75808efad8670",
+        "revCount": 830,
         "type": "git",
         "url": "https://git.outfoxxed.me/outfoxxed/quickshell"
       },
