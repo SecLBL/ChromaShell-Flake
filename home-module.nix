@@ -358,7 +358,6 @@ in
     systemd.user.services.chromashell-color-server = {
       Unit = {
         Description = "ChromaShell colors SSE server";
-        After       = [ "default.target" ];
       };
       Service = {
         ExecStart  = "${pkgs.python3}/bin/python3 ${inputs.dotfiles}/dots/.config/chromashell/theming/sse-server.py";
