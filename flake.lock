@@ -81,11 +81,11 @@
         "quickshell": "quickshell_2"
       },
       "locked": {
-        "lastModified": 1790953302,
-        "narHash": "sha256-GktswKZ2Ous9LVDcroCCwJPxYyle9fXMbnlQwYljU1Y=",
+        "lastModified": 1791066698,
+        "narHash": "sha256-GwYFyPuCEqMJFZoQv0CGwqAkI/74YhO+adg1YvrcVoc=",
         "owner": "SecLBL",
         "repo": "CS-shell",
-        "rev": "c41f253e75af0ded89ed982eb908cc96d0dee912",
+        "rev": "91a0f88b1ab9b7f067fc825e00e5d72d6460b1bf",
         "type": "github"
       },
       "original": {
@@ -97,11 +97,11 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1790953334,
+        "lastModified": 1791066834,
         "narHash": "sha256-jNSgJZvgPiUK2mqalopHOv/pQ0JRsOZKt5CFjlyIno0=",
         "owner": "SecLBL",
         "repo": "ChromaShell",
-        "rev": "4d87e2c313e667e11b2dd3368d20f1b879c9c6d5",
+        "rev": "2bf4e88d322e9fc74453de8dfdd0b4e0550f07b6",
         "type": "github"
       },
       "original": {
