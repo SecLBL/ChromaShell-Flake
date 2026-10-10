@@ -175,3 +175,7 @@ Same as the dotfiles repo — this is mostly a wrapper around other people's wor
   whole thing is built around. The vast majority of the credit goes here.
 - **End-4 / [illogical-impulse](https://github.com/end-4/dots-hyprland)** — for
   the inspiration that got me started.
+
+## License
+
+[GPL-3.0](LICENSE), same as the Caelestia projects this builds on.
