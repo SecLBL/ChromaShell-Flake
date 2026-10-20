@@ -16,6 +16,11 @@ let
     neovim   = "kitty -e nvim";
   };
 
+  # Desktop entry IDs for app2unit (unit name = ID, task managers match it); a
+  # missing .desktop falls back to the command in keybindings.lua.
+  editorIds  = { vscodium = "codium"; vscode = "code"; zed = "dev.zed.Zed"; };
+  browserIds = { firefox = "firefox"; librewolf = "librewolf"; brave = "brave-browser"; chromium = "chromium-browser"; };
+
   browserCmds = {
     firefox   = "firefox";
     librewolf = "librewolf";
@@ -90,10 +95,10 @@ in
       # Not in custom/ — that directory is user-managed and never overwritten by the flake.
       # When app = null the file simply doesn't exist; pcall handles the missing module.
       "hypr/generated/editor.lua"  = mkIf (cfg.editor.app != null) {
-        text = "require(\"config.variables\").editor = \"${editorCmds.${cfg.editor.app}}\"";
+        text = "local v = require(\"config.variables\"); v.editor = \"${editorCmds.${cfg.editor.app}}\"; v.editorId = \"${editorIds.${cfg.editor.app} or editorCmds.${cfg.editor.app}}\"";
       };
       "hypr/generated/browser.lua" = mkIf (cfg.browser.app != null) {
-        text = "require(\"config.variables\").browser = \"${browserCmds.${cfg.browser.app}}\"";
+        text = "local v = require(\"config.variables\"); v.browser = \"${browserCmds.${cfg.browser.app}}\"; v.browserId = \"${browserIds.${cfg.browser.app} or browserCmds.${cfg.browser.app}}\"";
       };
 
       # ── uwsm session environment ────────────────────────────────────────
