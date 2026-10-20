@@ -23,6 +23,17 @@ in
       gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
     };
 
+    # hypr/config/variables.lua expects Bibata-Modern-Classic (size 18); without
+    # the theme installed Hyprland falls back to a 1px cursor
+    home.pointerCursor = mkDefault {
+      name    = "Bibata-Modern-Classic";
+      package = pkgs.bibata-cursors;
+      size    = 18;
+      gtk.enable        = true;
+      x11.enable        = true;
+      hyprcursor.enable = true;
+    };
+
     qt = {
       enable = true;
       platformTheme.name = "gtk";

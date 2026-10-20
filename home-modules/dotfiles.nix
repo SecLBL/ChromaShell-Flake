@@ -32,6 +32,7 @@ in
       # ── Hyprland ───────────────────────────────────────────────────────
       "hypr/hyprland.lua".source = "${dots}/hypr/hyprland.lua";
       "hypr/config".source           = "${dots}/hypr/config";
+      "hypr/scheme/default.lua".source = "${dots}/hypr/scheme/default.lua";
       "hypr/scripts".source = pkgs.runCommand "chromashell-hypr-scripts" {} ''
         cp -r ${dots}/hypr/scripts $out
         chmod -R +x $out
