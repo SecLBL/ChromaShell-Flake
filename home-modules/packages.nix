@@ -16,7 +16,6 @@ in
 
       # ── Hyprland utilities ───────────────────
       hyprlock
-      hypridle
       hyprpicker
       wl-clipboard
       cliphist

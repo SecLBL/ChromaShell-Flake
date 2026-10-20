@@ -18,6 +18,9 @@ in
       extraConfig     = "";
     };
 
+    # Polkit auth dialog as a systemd user service bound to graphical-session.target
+    services.polkit-gnome.enable = true;
+
     # Erstellt ~/.config/hypr/custom/ mit leeren Dateien falls noch nicht vorhanden.
     # Diese Dateien gehören dem User — HM fasst sie danach nie wieder an.
     home.activation.chromashell-custom-init = lib.hm.dag.entryAfter ["writeBoundary"] ''
