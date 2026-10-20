@@ -97,11 +97,11 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1792461025,
-        "narHash": "sha256-+Pu05B1slzQeb5xnRxyxPSZFBYFhdTlXEfznt3AX9oE=",
+        "lastModified": 1792504469,
+        "narHash": "sha256-Bh4iyssPZRyPbTebnIp67nsdLoUr8hY71vfhwjNnjcM=",
         "owner": "SecLBL",
         "repo": "ChromaShell",
-        "rev": "76fce3cd9c46f9d912e351f55bd8a219631e2377",
+        "rev": "115a8723af891473f0e231c6c531e74b852c2ca2",
         "type": "github"
       },
       "original": {
