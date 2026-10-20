@@ -405,7 +405,8 @@ in
     # ── Browser (gecko, manage = false) — detect profile, deploy ChromaFox ───
     # manage = false: user owns the browser install; flake parses profiles.ini
     # zen: always via activation (not in nixpkgs, no HM module available)
-    home.activation.chromashellBrowserSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+    # After linkGeneration, so stale HM symlinks (user.js, profiles.ini) are gone first
+    home.activation.chromashellBrowserSetup = lib.hm.dag.entryAfter [ "linkGeneration" ] (
       lib.optionalString
         (cfg.browser.app != null
          && browserDefs.${cfg.browser.app}.type == "gecko"
@@ -445,7 +446,10 @@ in
           }
 
           ${lib.optionalString (cfg.browser.app == "firefox") ''
-            deploy_chromafox "$HOME/.mozilla/firefox/profiles.ini" \
+            # Firefox uses ~/.mozilla only if it exists, otherwise XDG ~/.config/mozilla
+            if [ -d "$HOME/.mozilla/firefox" ]; then ff_ini="$HOME/.mozilla/firefox/profiles.ini"
+            else ff_ini="''${XDG_CONFIG_HOME:-$HOME/.config}/mozilla/firefox/profiles.ini"; fi
+            deploy_chromafox "$ff_ini" \
               "${inputs.dotfiles}/dots/.config/firefox/userChrome.css" "false" "false"
           ''}
           ${lib.optionalString (cfg.browser.app == "librewolf") ''
