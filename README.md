@@ -89,6 +89,16 @@ add the NixOS module separately.
 | `comms.{app,manage}` | `null` / `false` | Chat app — see below. |
 | `music.{app,manage}` | `null` / `false` | Music app — see below. |
 | `editor.{app,manage}` | `null` / `false` | Editor — see below. |
+| `scheme.{name,flavour,variant,mode}` | `null` | Colour scheme, e.g. `name = "dynamic"; variant = "vibrant";`. |
+| `scheme.followWallpaper` | `false` | Switch back to `dynamic` on every wallpaper change. |
+| `transparency.{enable,base,layers}` | `null` / `0.85` / `0.4` | Transparent shell panels (opacity 0–1). |
+| `wallpaper.directory` | `"Pictures/Wallpapers"` | Wallpaper folder (relative to `$HOME`) for picker and CLI. |
+| `wallpaper.images` | `[ ]` | Images linked into that folder. |
+| `wallpaper.default` | `null` | Wallpaper applied on rebuild. |
+| `wallpaper.randomOnLogin` | `false` | Random wallpaper from the folder at every login. |
+
+> `scheme`, `transparency` and `wallpaper.default` are applied only when their
+> Nix value changes — whatever you pick in the shell's UI survives rebuilds.
 
 > The `true`-by-default options here (and in the NixOS module below) are opt-out
 > for a reason: they're not really optional. If you disable them, the matching

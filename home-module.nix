@@ -210,6 +210,89 @@ in
       };
     };
 
+    # scheme/transparency/wallpaper.default are applied only when their Nix value
+    # changes, so whatever is picked in the shell's UI survives rebuilds.
+    scheme = {
+      name = mkOption {
+        type = types.nullOr (types.enum (
+          builtins.attrNames (builtins.readDir "${inputs.caelestia-cli}/src/caelestia/data/schemes")
+          ++ [ "dynamic" "pywal" ]));
+        default     = null;
+        description = "Colour scheme (dynamic = generated from the wallpaper). null = leave the shell's choice alone.";
+      };
+      flavour = mkOption {
+        type        = types.nullOr types.str;
+        default     = null;
+        example     = "mocha";
+        description = "Flavour of the scheme. null = scheme's default.";
+      };
+      variant = mkOption {
+        type = types.nullOr (types.enum [
+          "tonalspot" "vibrant" "expressive" "fidelity" "fruitsalad"
+          "monochrome" "neutral" "rainbow" "content"
+        ]);
+        default     = null;
+        description = "How colours are derived (mostly matters for dynamic). null = keep current.";
+      };
+      mode = mkOption {
+        type        = types.nullOr (types.enum [ "dark" "light" ]);
+        default     = null;
+        description = "Dark or light. null = keep current.";
+      };
+      followWallpaper = mkOption {
+        type        = types.bool;
+        default     = false;
+        description = "Switch back to the dynamic scheme on every wallpaper change, even after picking a fixed scheme.";
+      };
+    };
+
+    transparency = {
+      enable = mkOption {
+        type        = types.nullOr types.bool;
+        default     = null;
+        description = "Transparent shell panels. null = leave the shell's setting alone.";
+      };
+      base = mkOption {
+        type        = types.numbers.between 0 1;
+        default     = 0.85;
+        description = "Opacity of the panel backgrounds (0 = invisible, 1 = solid).";
+      };
+      layers = mkOption {
+        type        = types.numbers.between 0 1;
+        default     = 0.4;
+        description = "Opacity of elements on top of the panels (cards, buttons).";
+      };
+    };
+
+    wallpaper = {
+      directory = mkOption {
+        type        = types.str;
+        default     = "Pictures/Wallpapers";
+        description = ''
+          Wallpaper folder relative to $HOME, for the shell's picker and the CLI
+          (exported as CAELESTIA_WALLPAPERS_DIR, overrides paths.wallpaperDir in
+          the shell UI). Stays a normal folder. Takes effect after re-login.
+        '';
+      };
+      images = mkOption {
+        type        = types.listOf types.path;
+        default     = [ ];
+        example     = lib.literalExpression "lib.filesystem.listFilesRecursive ./wallpapers";
+        description = "Images linked into the wallpaper folder.";
+      };
+      randomOnLogin = mkOption {
+        type        = types.bool;
+        default     = false;
+        description = "Pick a random wallpaper from the folder at every login.";
+      };
+      default = mkOption {
+        type        = types.nullOr types.path;
+        default     = null;
+        example     = lib.literalExpression "./wallpapers/mountains.jpg";
+        description = "Wallpaper applied on rebuild (also linked into the folder). null = leave the current one alone.";
+      };
+    };
+
     editor = {
       manage = mkOption {
         type        = types.bool;
@@ -517,6 +600,10 @@ in
               in
                 "bash ${inputs.dotfiles}/dots/.config/chromashell/theming/posthook.sh${browserArg}${commsArg}";
           };
+        } // lib.optionalAttrs cfg.scheme.followWallpaper {
+          # The dynamic scheme was already regenerated from the new wallpaper
+          wallpaper.postHook =
+            ''[ "$SCHEME_NAME" = dynamic ] || ${inputs.caelestia-cli.packages.${system}.default}/bin/caelestia scheme set -n dynamic'';
         } // lib.optionalAttrs (cfg.music.app != null || cfg.comms.app != null) {
           toggles =
             lib.optionalAttrs (cfg.music.app != null) { music = musicDefs.${cfg.music.app}.caeConfig; }
