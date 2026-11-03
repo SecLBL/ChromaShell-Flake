@@ -22,6 +22,7 @@ in
       ydotool
       grim
       swappy
+      python3         # hypr/scripts/canvas (auto layout, canvas toggle, navigation)
 
       # ── Screen recording ─────────────────────
       gpu-screen-recorder

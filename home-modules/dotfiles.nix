@@ -7,6 +7,14 @@ let
   cfg  = config.programs.chromashell;
   dots = "${inputs.dotfiles}/dots/.config";
 
+  # Canvas plugin (hypr config/canvas.lua): built against the Hyprland that runs it,
+  # the plugin refuses to load into any other build.
+  canvasPlugin = pkgs.callPackage ../plugins/canvas {
+    hyprland = if config.wayland.windowManager.hyprland.package != null
+      then config.wayland.windowManager.hyprland.package
+      else pkgs.hyprland;
+  };
+
   editorCmds = {
     vscodium = "codium";
     vscode   = "code";
@@ -100,6 +108,7 @@ in
       "hypr/generated/browser.lua" = mkIf (cfg.browser.app != null) {
         text = "local v = require(\"config.variables\"); v.browser = \"${browserCmds.${cfg.browser.app}}\"; v.browserId = \"${browserIds.${cfg.browser.app} or browserCmds.${cfg.browser.app}}\"";
       };
+      "hypr/generated/canvas.lua".text = "hl.plugin.load(\"${canvasPlugin}/lib/libcanvas.so\")";
 
       # ── uwsm session environment ────────────────────────────────────────
       "uwsm/env".source          = "${dots}/uwsm/env";
@@ -185,6 +194,11 @@ hl.monitor({ output=\"\", mode=\"preferred\", position=\"auto\", scale=1 })"
         | .general.apps.explorer //= ["thunar"]
         | .general.apps.audio    //= ["pavucontrol"]
         | .general.apps.playback //= ["mpv"]
+          # canvas mode bubble right after the workspaces; off via "enabled": false, not by deleting it
+        | if (.bar.entries | type) == "array" and all(.bar.entries[]; .id != "canvasMode") then
+            (.bar.entries | map(.id) | index("workspaces")) as $i
+            | if $i == null then . else .bar.entries |= (.[:$i + 1] + [{ "enabled": true, "id": "canvasMode" }] + .[$i + 1:]) end
+          else . end
       ' "$cfg" > "$tmp" && mv "$tmp" "$cfg"
     '';
   };
