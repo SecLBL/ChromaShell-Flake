@@ -1,0 +1,76 @@
+--- a/barDeco.cpp
++++ b/barDeco.cpp
+@@ -414,6 +414,7 @@
+         const auto iconX = barBox->x + (BUTTONSRIGHT ? barBox->width - offset - scaledButtonSize / 2.0 : offset + scaledButtonSize / 2.0) - button.iconTex->m_size.x / 2.0;
+         const auto iconY = barBox->y + barBox->height / 2.0 - button.iconTex->m_size.y / 2.0;
+         CBox       pos   = {iconX, iconY, button.iconTex->m_size.x, button.iconTex->m_size.y};
++        pos.round(); // ChromaShell: whole pixels, half-pixel positions blur the icon
+ 
+         if (!ICONONHOVER || (ICONONHOVER && m_iButtonHoverState > 0))
+             g_pHyprOpenGL->renderTexture(button.iconTex, pos, {.a = a});
+@@ -504,8 +505,45 @@
+     if (titleBarBox.w < 1 || titleBarBox.h < 1)
+         return;
+ 
++    // ChromaShell: blur before the stencil is set up, blurring switches the stencil test off.
++    // Hyprland's own blurred rect is rounded against the monitor box, not the bar, so its
++    // square corners stick out: the blurred background is drawn below, rounded like the bar.
++    CRegion              blurDamage;
++    SP<Render::ITexture> blurredBG;
++    if (SHOULDBLUR) {
++        blurDamage = g_pHyprRenderer->m_renderData.damage;
++        blurDamage.intersect(titleBarBox);
++        blurredBG = g_pHyprRenderer->blurMainFramebuffer(a, &blurDamage);
++    }
++
+     g_pHyprOpenGL->scissor(titleBarBox);
+ 
++    if (blurredBG) {
++        // drawn onto the bar box itself, showing the matching part of the blurred monitor, so the
++        // rounding is the bar's (same mapping as Hyprland's window blur). Before the stencil: the
++        // window drawn on top hides the part below the bar, and the bar colour then went missing.
++        CBox monBox = titleBarBox;
++        monBox.transform(Math::wlTransformToHyprutils(Math::invertTransform(pMonitor->m_transform)), pMonitor->m_transformedSize.x, pMonitor->m_transformedSize.y);
++        const Vector2D uvTL = monBox.pos() / pMonitor->m_pixelSize;
++        const Vector2D uvBR = (monBox.pos() + monBox.size()) / pMonitor->m_pixelSize;
++
++        g_pHyprRenderer->pushMonitorTransformEnabled(true);
++        const auto savedModif                       = g_pHyprRenderer->m_renderData.renderModif;
++        g_pHyprRenderer->m_renderData.renderModif = {};
++        g_pHyprOpenGL->renderTexture(blurredBG, titleBarBox,
++                                     {.damage                      = &blurDamage,
++                                      .a                           = a,
++                                      .round                       = static_cast<int>(scaledRounding),
++                                      .roundingPower               = m_pWindow->roundingPower(),
++                                      .allowCustomUV               = true,
++                                      .allowDim                    = false,
++                                      .primarySurfaceUVTopLeft     = uvTL,
++                                      .primarySurfaceUVBottomRight = uvBR});
++        g_pHyprRenderer->popMonitorTransformEnabled();
++        g_pHyprRenderer->m_renderData.renderModif = savedModif;
++        g_pHyprOpenGL->scissor(titleBarBox); // drawing set its own
++    }
++
+     if (ROUNDING) {
+         // the +1 is a shit garbage temp fix until renderRect supports an alpha matte
+         CBox windowBox = {PWINDOW->position(Desktop::View::IGeometric::GEOMETRIC_CURRENT).x + PWINDOW->m_floatingOffset.x - pMonitor->m_position.x + 1,
+@@ -515,6 +553,7 @@
+         if (windowBox.w < 1 || windowBox.h < 1)
+             return;
+ 
++        glStencilMask(-1); // ChromaShell: Hyprland may leave writes masked off (0x00), then nothing below sticks
+         glClearStencil(0);
+         glClear(GL_STENCIL_BUFFER_BIT);
+ 
+@@ -533,10 +572,7 @@
+         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+     }
+ 
+-    if (SHOULDBLUR)
+-        g_pHyprOpenGL->renderRect(titleBarBox, color, {.round = scaledRounding, .roundingPower = m_pWindow->roundingPower(), .blur = true, .blurA = a});
+-    else
+-        g_pHyprOpenGL->renderRect(titleBarBox, color, {.round = scaledRounding, .roundingPower = m_pWindow->roundingPower()});
++    g_pHyprOpenGL->renderRect(titleBarBox, color, {.round = scaledRounding, .roundingPower = m_pWindow->roundingPower()});
+ 
+     // render title
+     if (ENABLETITLE && (m_szLastTitle != PWINDOW->m_title || m_bWindowSizeChanged || !m_pTextTex || m_pTextTex->m_texID == 0 || m_bTitleColorChanged)) {

@@ -11,6 +11,10 @@
 // hl.plugin.canvas.cursor("grabbing") shows a cursor shape until
 // hl.plugin.canvas.cursor() clears it (the Lua pan grabs the canvas with it).
 //
+// Title bars (hyprbars) are reserved and take input, and Hyprland adds both extents
+// up when asked for both (snapping, hit tests): the bar counted twice. Each side
+// takes the larger one instead.
+//
 // hl.plugin.canvas.pan(ws, dx, dy) posts the IPC event "canvaspan>>ws,dx,dy":
 // a canvas moved, the shell follows with its wallpaper parallax.
 #include <hyprland/src/plugins/PluginAPI.hpp>
@@ -28,6 +32,7 @@
 static HANDLE         PHANDLE      = nullptr;
 static CFunctionHook* g_renderHook = nullptr;
 static CFunctionHook* g_boxHook    = nullptr;
+static CFunctionHook* g_extHook    = nullptr;
 
 APICALL EXPORT std::string PLUGIN_API_VERSION() {
     return HYPRLAND_API_VERSION;
@@ -65,6 +70,19 @@ static CBox hkGetWindowBoxUnified(void* thisptr, uint64_t props) {
     return box.intersection(CBox{mon->m_position, mon->m_size});
 }
 
+// CWindow::getWindowExtentsUnified(props)
+typedef SBoxExtents (*origExtents)(void*, uint64_t);
+static SBoxExtents hkGetWindowExtentsUnified(void* thisptr, uint64_t props) {
+    const auto orig = (origExtents)g_extHook->m_original;
+    if (!(props & Desktop::View::RESERVED_EXTENTS) || !(props & Desktop::View::INPUT_EXTENTS))
+        return orig(thisptr, props);
+    const auto reserved = orig(thisptr, Desktop::View::RESERVED_EXTENTS);
+    auto       rest     = orig(thisptr, props & ~Desktop::View::RESERVED_EXTENTS);
+    rest.topLeft        = {std::max(rest.topLeft.x, reserved.topLeft.x), std::max(rest.topLeft.y, reserved.topLeft.y)};
+    rest.bottomRight    = {std::max(rest.bottomRight.x, reserved.bottomRight.x), std::max(rest.bottomRight.y, reserved.bottomRight.y)};
+    return rest;
+}
+
 // same override slot Hyprland uses for its own window drag ("grabbing")
 static int luaCursor(lua_State* L) {
     if (lua_isstring(L, 1))
@@ -100,14 +118,15 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     g_renderHook = HyprlandAPI::createFunctionHook(PHANDLE, findFn("shouldRenderWindow", "shouldRenderWindow(Hyprutils::Memory::CSharedPointer<Desktop::View::CWindow>, Hyprutils::Memory::CSharedPointer"),
                                                    (void*)hkShouldRenderWindow);
     g_boxHook    = HyprlandAPI::createFunctionHook(PHANDLE, findFn("getWindowBoxUnified", "CWindow::getWindowBoxUnified("), (void*)hkGetWindowBoxUnified);
+    g_extHook    = HyprlandAPI::createFunctionHook(PHANDLE, findFn("getWindowExtentsUnified", "CWindow::getWindowExtentsUnified("), (void*)hkGetWindowExtentsUnified);
 
-    if (!g_renderHook || !g_renderHook->hook() || !g_boxHook || !g_boxHook->hook())
+    if (!g_renderHook || !g_renderHook->hook() || !g_boxHook || !g_boxHook->hook() || !g_extHook || !g_extHook->hook())
         fail("could not hook Hyprland, wrong version?");
 
     if (!HyprlandAPI::addLuaFunction(PHANDLE, "canvas", "cursor", luaCursor) || !HyprlandAPI::addLuaFunction(PHANDLE, "canvas", "pan", luaPan))
         fail("could not register hl.plugin.canvas functions");
 
-    return {"canvas", "Canvas helpers: monitor-clipped floating windows, pan cursor and parallax event", "ChromaShell", "1.2"};
+    return {"canvas", "Canvas helpers: monitor-clipped floating windows, pan cursor and parallax event", "ChromaShell", "1.3"};
 }
 
 APICALL EXPORT void PLUGIN_EXIT() {

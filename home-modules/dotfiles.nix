@@ -7,13 +7,13 @@ let
   cfg  = config.programs.chromashell;
   dots = "${inputs.dotfiles}/dots/.config";
 
-  # Canvas plugin (hypr config/canvas.lua): built against the Hyprland that runs it,
-  # the plugin refuses to load into any other build.
-  canvasPlugin = pkgs.callPackage ../plugins/canvas {
-    hyprland = if config.wayland.windowManager.hyprland.package != null
-      then config.wayland.windowManager.hyprland.package
-      else pkgs.hyprland;
-  };
+  # Hyprland plugins (hypr config/canvas.lua): built against the Hyprland that runs them,
+  # a plugin refuses to load into any other build.
+  hyprland = if config.wayland.windowManager.hyprland.package != null
+    then config.wayland.windowManager.hyprland.package
+    else pkgs.hyprland;
+  canvasPlugin   = pkgs.callPackage ../plugins/canvas { inherit hyprland; };
+  hyprbarsPlugin = pkgs.callPackage ../plugins/hyprbars { inherit hyprland; };
 
   editorCmds = {
     vscodium = "codium";
@@ -108,7 +108,10 @@ in
       "hypr/generated/browser.lua" = mkIf (cfg.browser.app != null) {
         text = "local v = require(\"config.variables\"); v.browser = \"${browserCmds.${cfg.browser.app}}\"; v.browserId = \"${browserIds.${cfg.browser.app} or browserCmds.${cfg.browser.app}}\"";
       };
-      "hypr/generated/canvas.lua".text = "hl.plugin.load(\"${canvasPlugin}/lib/libcanvas.so\")";
+      "hypr/generated/canvas.lua".text = ''
+        hl.plugin.load("${canvasPlugin}/lib/libcanvas.so")
+        hl.plugin.load("${hyprbarsPlugin}/lib/libhyprbars.so")
+      '';
 
       # ── uwsm session environment ────────────────────────────────────────
       "uwsm/env".source          = "${dots}/uwsm/env";
