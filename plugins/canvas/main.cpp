@@ -15,11 +15,16 @@
 // up when asked for both (snapping, hit tests): the bar counted twice. Each side
 // takes the larger one instead.
 //
+// Showing a special workspace again on the same monitor keeps its floating windows
+// where they are. Hyprland moves those off the monitor (a panned canvas) to its
+// middle or by a monitor offset, meant for a special workspace changing monitors.
+//
 // hl.plugin.canvas.pan(ws, dx, dy) posts the IPC event "canvaspan>>ws,dx,dy":
 // a canvas moved, the shell follows with its wallpaper parallax.
 #include <hyprland/src/plugins/PluginAPI.hpp>
 #include <hyprland/src/managers/EventManager.hpp>
 #include <hyprland/src/desktop/view/Window.hpp>
+#include <hyprland/src/desktop/state/WindowState.hpp>
 #include <hyprland/src/output/Monitor.hpp>
 #include <hyprland/src/render/Renderer.hpp>
 #include <hyprland/src/layout/LayoutManager.hpp>
@@ -33,6 +38,7 @@ static HANDLE         PHANDLE      = nullptr;
 static CFunctionHook* g_renderHook = nullptr;
 static CFunctionHook* g_boxHook    = nullptr;
 static CFunctionHook* g_extHook    = nullptr;
+static CFunctionHook* g_specHook   = nullptr;
 
 APICALL EXPORT std::string PLUGIN_API_VERSION() {
     return HYPRLAND_API_VERSION;
@@ -83,6 +89,21 @@ static SBoxExtents hkGetWindowExtentsUnified(void* thisptr, uint64_t props) {
     return rest;
 }
 
+// CMonitor::setSpecialWorkspace(PHLWORKSPACE)
+typedef void (*origSetSpecial)(void*, const PHLWORKSPACE&);
+static void hkSetSpecialWorkspace(void* thisptr, const PHLWORKSPACE& ws) {
+    const auto                                 mon = static_cast<Monitor::CMonitor*>(thisptr);
+    std::vector<std::pair<PHLWINDOWREF, CBox>> keep;
+    if (ws && ws->m_monitor == mon->m_self)
+        for (const auto& w : Desktop::windowState()->windows())
+            if (w->m_workspace == ws && w->m_isFloating)
+                keep.emplace_back(w, CBox{w->position(Desktop::View::IGeometric::GEOMETRIC_GOAL), w->layoutTarget()->position().size()});
+    ((origSetSpecial)g_specHook->m_original)(thisptr, ws);
+    for (const auto& [ref, box] : keep)
+        if (const auto w = ref.lock(); w && w->layoutTarget())
+            w->layoutTarget()->setPositionGlobal(box);
+}
+
 // same override slot Hyprland uses for its own window drag ("grabbing")
 static int luaCursor(lua_State* L) {
     if (lua_isstring(L, 1))
@@ -119,14 +140,16 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
                                                    (void*)hkShouldRenderWindow);
     g_boxHook    = HyprlandAPI::createFunctionHook(PHANDLE, findFn("getWindowBoxUnified", "CWindow::getWindowBoxUnified("), (void*)hkGetWindowBoxUnified);
     g_extHook    = HyprlandAPI::createFunctionHook(PHANDLE, findFn("getWindowExtentsUnified", "CWindow::getWindowExtentsUnified("), (void*)hkGetWindowExtentsUnified);
+    g_specHook   = HyprlandAPI::createFunctionHook(PHANDLE, findFn("setSpecialWorkspace", "CMonitor::setSpecialWorkspace(Hyprutils::Memory::CSharedPointer"),
+                                                   (void*)hkSetSpecialWorkspace);
 
-    if (!g_renderHook || !g_renderHook->hook() || !g_boxHook || !g_boxHook->hook() || !g_extHook || !g_extHook->hook())
+    if (!g_renderHook || !g_renderHook->hook() || !g_boxHook || !g_boxHook->hook() || !g_extHook || !g_extHook->hook() || !g_specHook || !g_specHook->hook())
         fail("could not hook Hyprland, wrong version?");
 
     if (!HyprlandAPI::addLuaFunction(PHANDLE, "canvas", "cursor", luaCursor) || !HyprlandAPI::addLuaFunction(PHANDLE, "canvas", "pan", luaPan))
         fail("could not register hl.plugin.canvas functions");
 
-    return {"canvas", "Canvas helpers: monitor-clipped floating windows, pan cursor and parallax event", "ChromaShell", "1.3"};
+    return {"canvas", "Canvas helpers: monitor-clipped floating windows, pan cursor and parallax event", "ChromaShell", "1.4"};
 }
 
 APICALL EXPORT void PLUGIN_EXIT() {
