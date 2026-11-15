@@ -94,6 +94,7 @@ in
     # hypr/config/variables.lua expects Bibata-Modern-Classic (size 18); without
     # the theme installed Hyprland falls back to a 1px cursor
     home.pointerCursor = mkDefault {
+      enable  = true;
       name    = "Bibata-Modern-Classic";
       package = pkgs.bibata-cursors;
       size    = 18;

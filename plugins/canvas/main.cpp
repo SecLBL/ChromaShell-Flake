@@ -22,8 +22,9 @@
 // hl.plugin.canvas.pan(ws, dx, dy) posts the IPC event "canvaspan>>ws,dx,dy":
 // a canvas moved, the shell follows with its wallpaper parallax.
 #include <hyprland/src/plugins/PluginAPI.hpp>
-#include <hyprland/src/managers/EventManager.hpp>
-#include <hyprland/src/desktop/view/Window.hpp>
+#include <hyprland/src/ipc/s2/S2.hpp>
+#include <hyprland/src/desktop/view/window/Window.hpp>
+#include <hyprland/src/desktop/view/window/WindowPresentation.hpp>
 #include <hyprland/src/desktop/state/WindowState.hpp>
 #include <hyprland/src/output/Monitor.hpp>
 #include <hyprland/src/render/Renderer.hpp>
@@ -53,7 +54,7 @@ static bool beingDragged(const PHLWINDOW& w) {
 }
 
 static bool clipped(const PHLWINDOW& w) {
-    return w->m_isFloating && !w->m_pinned && w->m_monitorMovedFrom == -1 && w->m_monitor && !beingDragged(w);
+    return w->isFloating() && !(w->m_state & Desktop::View::WINDOW_STATE_PINNED) && !w->presentation().movingFromMonitor() && w->m_monitor && !beingDragged(w);
 }
 
 // IHyprRenderer::shouldRenderWindow(PHLWINDOW, PHLMONITOR): also gates borders and shadows
@@ -89,16 +90,16 @@ static SBoxExtents hkGetWindowExtentsUnified(void* thisptr, uint64_t props) {
     return rest;
 }
 
-// CMonitor::setSpecialWorkspace(PHLWORKSPACE)
-typedef void (*origSetSpecial)(void*, const PHLWORKSPACE&);
-static void hkSetSpecialWorkspace(void* thisptr, const PHLWORKSPACE& ws) {
+// CMonitor::setSpecialWorkspace(PHLWORKSPACE, bool noFocus)
+typedef void (*origSetSpecial)(void*, const PHLWORKSPACE&, bool);
+static void hkSetSpecialWorkspace(void* thisptr, const PHLWORKSPACE& ws, bool noFocus) {
     const auto                                 mon = static_cast<Monitor::CMonitor*>(thisptr);
     std::vector<std::pair<PHLWINDOWREF, CBox>> keep;
     if (ws && ws->m_monitor == mon->m_self)
         for (const auto& w : Desktop::windowState()->windows())
-            if (w->m_workspace == ws && w->m_isFloating)
+            if (w->m_workspace == ws && w->isFloating())
                 keep.emplace_back(w, CBox{w->position(Desktop::View::IGeometric::GEOMETRIC_GOAL), w->layoutTarget()->position().size()});
-    ((origSetSpecial)g_specHook->m_original)(thisptr, ws);
+    ((origSetSpecial)g_specHook->m_original)(thisptr, ws, noFocus);
     for (const auto& [ref, box] : keep)
         if (const auto w = ref.lock(); w && w->layoutTarget())
             w->layoutTarget()->setPositionGlobal(box);
@@ -114,7 +115,7 @@ static int luaCursor(lua_State* L) {
 }
 
 static int luaPan(lua_State* L) {
-    g_pEventManager->postEvent(SHyprIPCEvent{"canvaspan", std::format("{},{},{}", luaL_checkinteger(L, 1), luaL_checknumber(L, 2), luaL_checknumber(L, 3))});
+    IPC::Socket2::sock()->postEvent(IPC::Socket2::SEvent{"canvaspan", std::format("{},{},{}", luaL_checkinteger(L, 1), luaL_checknumber(L, 2), luaL_checknumber(L, 3))});
     return 0;
 }
 
@@ -149,7 +150,7 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     if (!HyprlandAPI::addLuaFunction(PHANDLE, "canvas", "cursor", luaCursor) || !HyprlandAPI::addLuaFunction(PHANDLE, "canvas", "pan", luaPan))
         fail("could not register hl.plugin.canvas functions");
 
-    return {"canvas", "Canvas helpers: monitor-clipped floating windows, pan cursor and parallax event", "ChromaShell", "1.4"};
+    return {"canvas", "Canvas helpers: monitor-clipped floating windows, pan cursor and parallax event", "ChromaShell", "1.5"};
 }
 
 APICALL EXPORT void PLUGIN_EXIT() {
