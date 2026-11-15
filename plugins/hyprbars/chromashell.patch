@@ -1,22 +1,6 @@
 --- a/barDeco.cpp
 +++ b/barDeco.cpp
-@@ -531,6 +531,15 @@
- 
-     g_pHyprOpenGL->scissor(ctx, titleBarBox);
- 
-+    // ChromaShell: blur before the stencil is set up, blurring switches the stencil test off.
-+    // Before the stencil also keeps the bar colour: the window drawn on top hides the part below the bar.
-+    if (SHOULDBLUR) {
-+        g_pHyprOpenGL->renderRect(
-+            ctx, titleBarBox, CHyprColor(0, 0, 0, 0),
-+            CHyprOpenGLImpl::SRectRenderData{.round = sc<int>(scaledRounding), .roundingPower = m_pWindow->presentation().roundingPower(), .blur = true, .blurA = a});
-+        g_pHyprOpenGL->scissor(ctx, titleBarBox); // drawing set its own
-+    }
-+
-     if (ROUNDING) {
-         // the +1 is a shit garbage temp fix until renderRect supports an alpha matte
-         CBox windowBox = {PWINDOW->position(Desktop::View::IGeometric::GEOMETRIC_CURRENT).x + PWINDOW->presentation().floatingOffset().x - pMonitor->m_position.x + 1,
-@@ -540,6 +549,7 @@
+@@ -540,6 +540,7 @@
          if (windowBox.w < 1 || windowBox.h < 1)
              return;
  
@@ -24,19 +8,3 @@
          glClearStencil(0);
          glClear(GL_STENCIL_BUFFER_BIT);
  
-@@ -559,13 +569,8 @@
-         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-     }
- 
--    if (SHOULDBLUR)
--        g_pHyprOpenGL->renderRect(
--            ctx, titleBarBox, color,
--            CHyprOpenGLImpl::SRectRenderData{.round = sc<int>(scaledRounding), .roundingPower = m_pWindow->presentation().roundingPower(), .blur = true, .blurA = a});
--    else
--        g_pHyprOpenGL->renderRect(ctx, titleBarBox, color,
--                                  CHyprOpenGLImpl::SRectRenderData{.round = sc<int>(scaledRounding), .roundingPower = m_pWindow->presentation().roundingPower()});
-+    g_pHyprOpenGL->renderRect(ctx, titleBarBox, color,
-+                              CHyprOpenGLImpl::SRectRenderData{.round = sc<int>(scaledRounding), .roundingPower = m_pWindow->presentation().roundingPower()});
- 
-     // render title
-     const int  SCALEDTEXTSIZE = std::round(g_pGlobalState->config.barTextSize->value() * pMonitor->m_scale);
