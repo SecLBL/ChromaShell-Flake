@@ -1,10 +1,11 @@
 --- a/barDeco.cpp
 +++ b/barDeco.cpp
-@@ -540,6 +540,7 @@
+@@ -540,6 +540,8 @@
          if (windowBox.w < 1 || windowBox.h < 1)
              return;
  
-+        glStencilMask(-1); // ChromaShell: Hyprland may leave writes masked off (0x00), then nothing below sticks
++        g_pHyprOpenGL->disableScissor(); // ChromaShell: the scissored clear misses parts of the bar on rotated, scaled monitors
++        glStencilMask(-1);               // ChromaShell: Hyprland may leave writes masked off (0x00), then nothing below sticks
          glClearStencil(0);
          glClear(GL_STENCIL_BUFFER_BIT);
  

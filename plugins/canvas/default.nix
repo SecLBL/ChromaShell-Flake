@@ -4,7 +4,7 @@
 hyprlandPlugins.mkHyprlandPlugin {
   inherit hyprland;
   pluginName = "canvas";
-  version = "1.5";
+  version = "1.6";
   src = ./.;
   meta.description = "ChromaShell canvas: monitor-clipped floating windows, pan cursor and parallax event";
 

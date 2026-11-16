@@ -19,6 +19,9 @@
 // where they are. Hyprland moves those off the monitor (a panned canvas) to its
 // middle or by a monitor offset, meant for a special workspace changing monitors.
 //
+// hl.plugin.canvas.dragging() returns the address of the window being moved with the
+// mouse, whoever started the drag (hyprbars swallows the button events binds see).
+//
 // hl.plugin.canvas.pan(ws, dx, dy) posts the IPC event "canvaspan>>ws,dx,dy":
 // a canvas moved, the shell follows with its wallpaper parallax.
 #include <hyprland/src/plugins/PluginAPI.hpp>
@@ -45,12 +48,15 @@ APICALL EXPORT std::string PLUGIN_API_VERSION() {
     return HYPRLAND_API_VERSION;
 }
 
+// the window being moved with the mouse, by a bind or a title bar
+static PHLWINDOW draggedWindow() {
+    const auto& drag   = g_layoutManager->dragController();
+    const auto  target = drag && drag->mode() == MBIND_MOVE ? drag->target() : nullptr;
+    return target ? target->window() : nullptr;
+}
+
 static bool beingDragged(const PHLWINDOW& w) {
-    const auto& drag = g_layoutManager->dragController();
-    if (!drag || drag->mode() != MBIND_MOVE)
-        return false;
-    const auto target = drag->target();
-    return target && target->window() == w;
+    return draggedWindow() == w;
 }
 
 static bool clipped(const PHLWINDOW& w) {
@@ -119,6 +125,15 @@ static int luaPan(lua_State* L) {
     return 0;
 }
 
+static int luaDragging(lua_State* L) {
+    const auto w = draggedWindow();
+    if (w)
+        lua_pushstring(L, std::format("0x{:x}", (uintptr_t)w.get()).c_str());
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
 static void* findFn(const std::string& name, const std::string& demangledNeedle) {
     for (const auto& fn : HyprlandAPI::findFunctionsByName(PHANDLE, name))
         if (fn.demangled.find(demangledNeedle) != std::string::npos)
@@ -147,10 +162,11 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     if (!g_renderHook || !g_renderHook->hook() || !g_boxHook || !g_boxHook->hook() || !g_extHook || !g_extHook->hook() || !g_specHook || !g_specHook->hook())
         fail("could not hook Hyprland, wrong version?");
 
-    if (!HyprlandAPI::addLuaFunction(PHANDLE, "canvas", "cursor", luaCursor) || !HyprlandAPI::addLuaFunction(PHANDLE, "canvas", "pan", luaPan))
+    if (!HyprlandAPI::addLuaFunction(PHANDLE, "canvas", "cursor", luaCursor) || !HyprlandAPI::addLuaFunction(PHANDLE, "canvas", "pan", luaPan) ||
+        !HyprlandAPI::addLuaFunction(PHANDLE, "canvas", "dragging", luaDragging))
         fail("could not register hl.plugin.canvas functions");
 
-    return {"canvas", "Canvas helpers: monitor-clipped floating windows, pan cursor and parallax event", "ChromaShell", "1.5"};
+    return {"canvas", "Canvas helpers: monitor-clipped floating windows, pan cursor and parallax event", "ChromaShell", "1.6"};
 }
 
 APICALL EXPORT void PLUGIN_EXIT() {
