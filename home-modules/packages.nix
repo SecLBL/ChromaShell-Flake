@@ -40,7 +40,17 @@ in
 
       # ── File manager ─────────────────────────
       (thunar.override {
-        thunarPlugins = [ thunar-archive-plugin thunar-volman ];
+        thunarPlugins = [
+          # The plugin only looks for <manager>.tap in its own store path;
+          # xarchiver ships its .tap in its own package, so link it in.
+          (thunar-archive-plugin.overrideAttrs (o: {
+            postInstall = (o.postInstall or "") + ''
+              ln -s ${xarchiver}/libexec/thunar-archive-plugin/xarchiver.tap \
+                $out/libexec/thunar-archive-plugin/
+            '';
+          }))
+          thunar-volman
+        ];
       })
       xarchiver       # backend for thunar-archive-plugin (extract/create via context menu)
       xfconf          # Thunar persists its settings here (D-Bus activated)
