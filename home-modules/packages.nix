@@ -39,7 +39,12 @@ in
       mpv             # shell.json general.apps.playback default (recording playback)
 
       # ── File manager ─────────────────────────
-      thunar
+      (thunar.override {
+        thunarPlugins = [ thunar-archive-plugin thunar-volman ];
+      })
+      xarchiver       # backend for thunar-archive-plugin (extract/create via context menu)
+      xfconf          # Thunar persists its settings here (D-Bus activated)
+      tumbler         # thumbnails (D-Bus activated)
 
       # ── Theming ──────────────────────────────
       adw-gtk3
